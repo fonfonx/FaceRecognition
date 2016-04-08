@@ -41,6 +41,7 @@ def fillStringNumber(val, tot):
         valstr = "0" + valstr
     return valstr
 
+
 def columnFromImage(img):
     im = Image.open(img)
     im = im.convert("L")
@@ -68,8 +69,10 @@ def createTrainingDico(nbFaces):
     dico=(np.column_stack(listImages)).astype(float)
     return dico
 
+
 def normColumn(col):
     return LA.norm(col)
+
 
 def normalizeColumn(col):
     col = col.astype(float)
@@ -77,18 +80,19 @@ def normalizeColumn(col):
     col /= sq
     return col
 
+
 def normalizeMatrix(matrix):
     n, m = matrix.shape
     for j in range(m):
         matrix[:, j] = normalizeColumn(matrix[:, j])
     return matrix
 
+
 def powerMatDiagSqrt(mat):
     n, m = mat.shape
     for i in range(n):
         mat[i, i] = sqrt(mat[i, i])
     return mat
-
 
 ############### DEBUG ############
 
@@ -152,6 +156,7 @@ def mean_sample(mat):
     n, m = mat.shape
     mean = np.array([sum(mat[i, :]) for i in range(n)]) / (1.0 * m)
     return mean
+
 
 def fdelta(residual):
     n = len(residual)
@@ -297,7 +302,12 @@ def test_recognizer():
 
 dico = createTrainingDico(nbFaces)
 reductor = PCA_reductor(dico, nbDim)
+# dim reduction
+dico_red = reductor.transpose().dot(dico)
+dico_norm = normalizeMatrix(dico_red)
+print "PCA done"
+dico = dico_norm
+
 
 test_recognizer()
 print "fin"
-
