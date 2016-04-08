@@ -302,12 +302,6 @@ def test_recognizer():
 
 dico = createTrainingDico(nbFaces)
 reductor = PCA_reductor(dico, nbDim)
-# dim reduction
-dico_red = reductor.transpose().dot(dico)
-dico_norm = normalizeMatrix(dico_red)
-print "PCA done"
-dico = dico_norm
-
 
 test_recognizer()
 print "fin"
