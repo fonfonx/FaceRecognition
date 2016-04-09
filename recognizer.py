@@ -22,7 +22,7 @@ lmbda = 0.001
 rel_tol = 0.001
 classNum = 100
 nbFaces = 7
-eta = 0.8
+eta = 1.0
 silence = True
 
 if database=="../AR_DB/":
@@ -77,15 +77,16 @@ def normColumn(col):
 def normalizeColumn(col):
     col = col.astype(float)
     sq = normColumn(col)
-    col /= sq
-    return col
+    ncol =col/sq
+    return ncol
 
 
 def normalizeMatrix(matrix):
     n, m = matrix.shape
+    nmatrix=np.zeros((n,m))
     for j in range(m):
-        matrix[:, j] = normalizeColumn(matrix[:, j])
-    return matrix
+        nmatrix[:, j] = normalizeColumn(matrix[:, j])
+    return nmatrix
 
 
 def powerMatDiagSqrt(mat):
@@ -106,6 +107,11 @@ def debug_alpha(alpha):
     for i in range(classNum):
         for j in range(nbFaces):
             print str(i+1)+": "+str(alpha[i*nbFaces+j])
+
+def debug_tab(tab):
+    n=len(tab)
+    for i in range(n):
+        print tab[i]
 
 
 ######################################
@@ -196,104 +202,74 @@ def toDiag(before_exp):
     return rep
 
 def RSC_identif(TrainSet, Test):
-    NTrainSet = normalizeMatrix(TrainSet)
-    NTest = normalizeColumn(Test)
-    test_norm = normColumn(Test)
-    # TrainSet=NTrainSet
-    # Test=NTest
-    ini = mean_sample(TrainSet)
-    y_actu=ini
-    e = np.array((Test - y_actu).astype(float))
+    e=np.array((Test-mean).astype(float))
+    norm_y=normColumn(Test)
+    NTest=normalizeColumn(Test)
     for j in range(nbIter):
-        delta = fdelta(e)
-        mu = param_c / delta
-        before_exp=mu * e ** 2 - mu * delta
-        #todiag = (1.0 / (np.exp(before_exp) + 1.0))
+        delta=fdelta(e)
+        mu=param_c/delta
+        before_exp = mu * (e ** 2 - delta)
         todiag=toDiag(before_exp)
         W = np.diag(todiag.flatten())
-        W = powerMatDiagSqrt(W)
-        D = normalizeMatrix(W.dot(TrainSet))
-        y = normalizeColumn(W.dot(Test))
+        WTrain=normalizeMatrix(W.dot(TrainSet))
+        WTest=normalizeColumn(W.dot(Test))
+        WTrainRed=dimReduct(WTrain,reductor)
+        WTestRed=dimReduct(WTest,reductor)
+        D=normalizeMatrix(WTrainRed)
+        y=normalizeColumn(WTestRed)
 
         [x, status, hist] = L.l1ls(D, y, lmbda, quiet=True)
-
 
         if j == 0:
             alpha = x
         else:
-            #eta=find_eta(y,D,alpha,x,mu,delta,nbDim)
+            # eta=find_eta(y,D,alpha,x,mu,delta,nbDim)
             alpha = alpha + eta * (x - alpha)
 
-        if not (silence):
-            #print alpha
-            debug_alpha(alpha)
+        e=norm_y*(NTest-dico_norm.dot(alpha))
 
-        e = test_norm * (NTest - NTrainSet.dot(alpha))
-        #e = (Test-TrainSet.dot(alpha)).astype(float)
-    return classif(TrainSet, Test, alpha, nbFaces)
-    #return classif(D,y,alpha,nbFaces)#,classif(TrainSet, Test, alpha, nbFaces)
-    #return myclassif(x,nbFaces)
+    return classif(D,y,alpha,nbFaces)
 
-def test_class(man, nbr, dico_red, reductor, nbMen):
-    tot = 0
-    good = 0
+def test_class(man, nbr,nbMen):
+    tot=0
+    good=0
     if man:
         for j in range(nbFaces):
-            k = 14 + j
+            k=14+j
             nomImage = debMen + fillStringNumber(nbr, 3) + "-" + fillStringNumber(k, 2) + ".bmp"
-            #nomImage = debMen + fillStringNumber(nbr, 3) + "-" + str(k) + ".bmp"
+            # nomImage = debMen + fillStringNumber(nbr, 3) + "-" + str(k) + ".bmp"
             pathImage = database + nomImage
             y = columnFromImage(pathImage)
-            y = reductor.transpose().dot(y)
-            classif = RSC_identif(dico_red, y)
-            print "Class " + str(nbr) + " identified as " + str(classif)#+" "+str(classif2)
+            classif=RSC_identif(dico,y)
+            print "Class " + str(nbr) + " identified as " + str(classif)  # +" "+str(classif2)
             if classif == nbr:
                 good += 1
             tot += 1
-            # fichier=file('reponses.txt','a')
-            # fichier.write(''+str(i)+' '+str(classif)+'\n')
-            # fichier.close()
     else:
         for j in range(nbFaces):
             k = 14 + j
             nomImage = debWomen + fillStringNumber(nbr, 3) + "-" + fillStringNumber(k, 2) + ".bmp"
-            #nomImage = debWomen + fillStringNumber(nbr, 3) + "-" + str(k) + ".bmp"
+            # nomImage = debMen + fillStringNumber(nbr, 3) + "-" + str(k) + ".bmp"
             pathImage = database + nomImage
             y = columnFromImage(pathImage)
-            y = reductor.transpose().dot(y)
-            classif = RSC_identif(dico_red, y)
-            print "Class " + str(nbMen + nbr) + " identified as " + str(classif)#+" "+str(classif2)
-            if classif == nbMen + nbr:
+            classif = RSC_identif(dico, y)
+            print "Class " + str(nbr+nbMen) + " identified as " + str(classif)  # +" "+str(classif2)
+            if classif == nbMen+nbr:
                 good += 1
             tot += 1
-            # fichier=file('reponses.txt','a')
-            # fichier.write(''+str(nbMen+i)+' '+str(classif)+'\n')
-            # fichier.close()
     return tot, good
 
-
 def test_recognizer():
-    # fichier=file('reponses.txt','w')
-    # fichier.close()
-    nbMen = 50
-    nbWomen = 50
-    tot = 0
-    good = 0
-    # dim reduction
-    dico_red = reductor.transpose().dot(dico)
-    print "PCA done"
-    to_test_men = [2, 4, 6, 9, 10, 11, 22, 24, 25, 27, 28, 29, 30, 31, 33, 35, 36, 46, 47, 48]
-    to_test_women = [1, 5, 8, 9, 10, 11, 12, 14, 15, 18, 19, 20, 22, 23, 24, 25, 26, 27, 28, 30, 32, 35, 37, 39, 40, 41,
-                     42, 43, 44, 47, 48, 50]
-    to_test_big_men = [2, 28, 31, 48]
-    to_test_big_women = [1, 5, 14, 24, 28, 30, 39, 41, 42, 47, 48]
-    to_test = {1, 2}
+    nbMen=50
+    nbWomen=50
+    tot=0
+    good=0
     for i in range(1,nbMen+1):
-        tot_int, good_int = test_class(True, i, dico_red, reductor, nbMen)
-        tot += tot_int
-        good += good_int
-    for i in range(1,nbWomen+1):
-        tot_int, good_int = test_class(False, i, dico_red, reductor, nbMen)
+        tot_int,good_int=test_class(True,i,nbMen)
+        tot+=tot_int
+        good+=good_int
+    for i in range(1, nbWomen + 1):
+        tot_int, good_int = test_class(False, i,nbMen)
         tot += tot_int
         good += good_int
     rate = good * 1.0 / (tot * 1.0)
@@ -302,6 +278,8 @@ def test_recognizer():
 
 dico = createTrainingDico(nbFaces)
 reductor = PCA_reductor(dico, nbDim)
+mean=mean_sample(dico)
+dico_norm=normalizeMatrix(dico)
 
 test_recognizer()
 print "fin"
