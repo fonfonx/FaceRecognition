@@ -10,18 +10,24 @@ import sys
 from pca import PCA_reductor, KEigen
 from numpy import linalg as LA
 import time
+from os import listdir
+from os.path import isfile, join
+
+### DATABASES ###
 
 #database = "../AR_crop/"
 #database="../AR_DB/"
 database="../AR_matlab/"
+ATT_DB="../../databases/ATT/"
+Yale_DB="../../databases/CroppedYale/"
+
+
 nbDim = 120
 nbIter = 2
 param_c = 8.0
 param_tau = 0.8
 lmbda = 0.001
 rel_tol = 0.001
-classNum = 100
-nbFaces = 7
 eta = 1.0
 silence = True
 
@@ -68,6 +74,36 @@ def createTrainingDico(nbFaces):
     print "Creation of dictionary done"
     dico=(np.column_stack(listImages)).astype(float)
     return dico
+
+# trainpart: percent of the repo used for training (rest -> testing)
+# percent: percent of the repo used (globally)
+# return trainSet, testSet, number of classes, number of training images and test images per class
+def createDicosFromDirectory(repo,trainpart,percent=1.0):
+    trainImages=[]
+    testImages=[]
+    directories=sorted(listdir(repo))
+    nbClasses=len(directories)
+    for d in directories:
+        images=sorted(listdir(repo+d))
+        n=int(percent*(len(images)))
+        nb_train=1
+        train_max=int(trainpart*n)
+        for i in np.random.permutation(range(n)):
+            pathImage=repo+d+"/"+images[i]
+            if nb_train<=train_max:
+                nb_train+=1
+                trainImages.append(columnFromImage(pathImage))
+            else:
+                testImages.append(columnFromImage(pathImage))
+    nbFacesTrain=train_max
+    nbFacesTest=n-train_max
+    trainSet=(np.column_stack(trainImages)).astype(float)
+    testSet=(np.column_stack(testImages)).astype(float)
+    print "Training et Test sets have been created with success!"
+    return trainSet, testSet, nbClasses,nbFacesTrain, nbFacesTest
+
+
+
 
 
 def normColumn(col):
@@ -153,7 +189,7 @@ def debug_tab(tab):
 #     print 'none'
 #     return 0.05
 
-
+########################################################
 
 def dimReduct(matrix, reductor):
     return reductor.transpose().dot(matrix)
@@ -226,6 +262,9 @@ def RSC_identif(TrainSet, Test):
             # eta=find_eta(y,D,alpha,x,mu,delta,nbDim)
             alpha = alpha + eta * (x - alpha)
 
+        if not(silence):
+            debug_alpha(alpha)
+
         e=norm_y*(NTest-dico_norm.dot(alpha))
 
     return classif(D,y,alpha,nbFaces)
@@ -275,6 +314,37 @@ def test_recognizer():
     rate = good * 1.0 / (tot * 1.0)
     print "Recognition rate:", rate
 
+
+def testRecognizer(testSet):
+    tot=0
+    good=0
+    p,n=testSet.shape
+    for i in range(n):
+        y=testSet[:,i]
+        trueClass=1+int(i/nbFacesTest)
+        classif=RSC_identif(dico,y)
+        print "Class "+ str(trueClass)+" identified as "+str(classif)
+        if classif==trueClass:
+            good+=1
+        tot+=1
+    rate = good * 1.0 / (tot * 1.0)
+    print "Recognition rate:", rate
+
+db=Yale_DB
+percent=0.4
+dico,testSet,classNum,nbFaces, nbFacesTest=createDicosFromDirectory(db,0.5,percent)
+reductor = PCA_reductor(dico, nbDim)
+mean=mean_sample(dico)
+dico_norm=normalizeMatrix(dico)
+
+testRecognizer(testSet)
+print "fin"
+sys.exit()
+
+
+
+classNum = 100
+nbFaces = 7
 
 dico = createTrainingDico(nbFaces)
 reductor = PCA_reductor(dico, nbDim)
