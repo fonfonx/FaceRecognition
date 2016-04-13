@@ -13,6 +13,7 @@ import time
 from os import listdir
 from os.path import isfile, join
 from scipy.fftpack import dct, fft
+from numpy.fft import fft2
 
 ### DATABASES ###
 
@@ -53,6 +54,8 @@ def columnFromImage(img):
     im = im.convert("L")
     im = np.asarray(im)
     # im=dct(im)
+    #im=fft2(im)
+    #im=absMat(im)
     return np.transpose(im).flatten()
 
 
@@ -130,6 +133,15 @@ def powerMatDiagSqrt(mat):
     for i in range(n):
         mat[i, i] = sqrt(mat[i, i])
     return mat
+
+# returns the module of each cell (if complex matrix)
+def absMat(mat):
+    n,m=mat.shape
+    rep=np.zeros((n,m))
+    for i in range(n):
+        for j in range(m):
+            rep[i,j]=abs(mat[i,j])
+    return rep
 
 
 ############### DEBUG ############
@@ -251,7 +263,8 @@ def l2_ls(D, y, lmbda):
     toinv = pr + lmbda * np.identity(n)
     inv = LA.inv(toinv)
     reste = D.transpose().dot(y)
-    return inv.dot(reste)
+    rep=inv.dot(reste)
+    return rep
 
 
 def RSC_identif(TrainSet, Test):
@@ -261,8 +274,6 @@ def RSC_identif(TrainSet, Test):
     for j in range(nbIter):
         delta = fdelta(e)
         mu = param_c / delta
-        # delta=120.0
-        # mu=0.1
         before_exp = mu * (e ** 2 - delta)
         todiag = toDiag(before_exp)
         W = np.diag(todiag.flatten())
@@ -273,7 +284,7 @@ def RSC_identif(TrainSet, Test):
         D = normalizeMatrix(WTrainRed)
         y = normalizeColumn(WTestRed)
 
-        # [x, status, hist] = L.l1ls(D, y, lmbda, quiet=True)
+        [x, status, hist] = L.l1ls(D, y, lmbda, quiet=True)
         x = l2_ls(D, y, lmbda)
 
         if j == 0:
@@ -286,7 +297,6 @@ def RSC_identif(TrainSet, Test):
             debug_alpha(alpha)
 
         e = norm_y * (NTest - dico_norm.dot(alpha))
-
     return classif(D, y, alpha, nbFaces)
     # return classif(TrainSet,Test,alpha,nbFaces)
     # return myclassif(alpha,nbFaces)
@@ -359,16 +369,16 @@ def testRecognizer(testSet):
 
 ### V2: choose directory from training (ATT, Yale)
 
-# db=ATT_DB
-# percent=1.0
-# dico,testSet,classNum,nbFaces, nbFacesTest=createDicosFromDirectory(db,0.5,percent)
-# reductor = PCA_reductor(dico, nbDim)
-# mean=mean_sample(dico)
-# dico_norm=normalizeMatrix(dico)
-#
-# testRecognizer(testSet)
-# print "fin"
-# sys.exit()
+db=ATT_DB
+percent=1.0
+dico,testSet,classNum,nbFaces, nbFacesTest=createDicosFromDirectory(db,0.5,percent)
+reductor = PCA_reductor(dico, nbDim)
+mean=mean_sample(dico)
+dico_norm=normalizeMatrix(dico)
+
+testRecognizer(testSet)
+print "fin"
+sys.exit()
 
 ### V1: explicit names from training (AR)
 
