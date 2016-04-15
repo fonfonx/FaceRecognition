@@ -369,16 +369,16 @@ def testRecognizer(testSet):
 
 ### V2: choose directory from training (ATT, Yale)
 
-db=ATT_DB
-percent=1.0
-dico,testSet,classNum,nbFaces, nbFacesTest=createDicosFromDirectory(db,0.5,percent)
-reductor = PCA_reductor(dico, nbDim)
-mean=mean_sample(dico)
-dico_norm=normalizeMatrix(dico)
-
-testRecognizer(testSet)
-print "fin"
-sys.exit()
+# db=ATT_DB
+# percent=1.0
+# dico,testSet,classNum,nbFaces, nbFacesTest=createDicosFromDirectory(db,0.5,percent)
+# reductor = PCA_reductor(dico, nbDim)
+# mean=mean_sample(dico)
+# dico_norm=normalizeMatrix(dico)
+#
+# testRecognizer(testSet)
+# print "fin"
+# sys.exit()
 
 ### V1: explicit names from training (AR)
 
