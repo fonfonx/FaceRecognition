@@ -23,7 +23,7 @@ database = "../AR_matlab/"
 ATT_DB = "../../databases/ATT/"
 Yale_DB = "../../databases/CroppedYale/"
 
-nbDim = 120
+nbDim = 60
 nbIter = 2
 param_c = 8.0
 param_tau = 0.8
@@ -108,6 +108,19 @@ def createDicosFromDirectory(repo, trainpart, percent=1.0):
     print "Training et Test sets have been created with success!"
     return trainSet, testSet, nbClasses, nbFacesTrain, nbFacesTest
 
+
+def createDicoFromDirectory(repo):
+    imagesArray = []
+    directories = sorted(listdir(repo))
+    for d in directories:
+        images=sorted(listdir(repo+d))
+        for image in images:
+            pathImage=repo+d+"/"+image
+            #print str(columnFromImage(pathImage).shape)+pathImage
+            imagesArray.append(columnFromImage(pathImage))
+    dico=(np.column_stack(imagesArray)).astype(float)
+    print "dico created!"
+    return dico
 
 def normColumn(col):
     return LA.norm(col)
@@ -367,6 +380,19 @@ def testRecognizer(testSet):
     print "Recognition rate:", rate
 
 
+### V1: explicit names from training (AR)
+
+# classNum = 100
+# nbFaces = 7
+#
+# dico = createTrainingDico(nbFaces)
+# reductor = PCA_reductor(dico, nbDim)
+# mean = mean_sample(dico)
+# dico_norm = normalizeMatrix(dico)
+#
+# test_recognizer()
+# print "fin"
+
 ### V2: choose directory from training (ATT, Yale)
 
 # db=ATT_DB
@@ -380,15 +406,17 @@ def testRecognizer(testSet):
 # print "fin"
 # sys.exit()
 
-### V1: explicit names from training (AR)
+### V3: real test
 
-classNum = 100
-nbFaces = 7
+dirTrain="../g8_images_train/"
+dirTest="../g8_images_test2/"
+dico=createDicoFromDirectory(dirTrain)
+reductor=PCA_reductor(dico,nbDim)
+mean=mean_sample(dico)
+dico_norm=normalizeMatrix(dico)
+testSet=createDicoFromDirectory(dirTest)
+classNum=13
+nbFaces=7
+nbFacesTest=1
 
-dico = createTrainingDico(nbFaces)
-reductor = PCA_reductor(dico, nbDim)
-mean = mean_sample(dico)
-dico_norm = normalizeMatrix(dico)
-
-test_recognizer()
-print "fin"
+testRecognizer(testSet)

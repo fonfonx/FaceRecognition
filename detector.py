@@ -13,13 +13,16 @@ path='/home/xavier/opencv/opencv-2.4.10/data/haarcascades/'
 def faceDetector(image, newName="image", saveFolder="", display=True, save=False):
     path = '/home/xavier/opencv/opencv-2.4.10/data/haarcascades/'
     img=cv2.imread(image)
-    #img = cv2.resize(img,None,fx=1.5, fy=1.5, interpolation = cv2.INTER_CUBIC)
+    img = cv2.resize(img,None,fx=1.5, fy=1.5, interpolation = cv2.INTER_CUBIC)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     face_cascade = cv2.CascadeClassifier(path + 'haarcascade_frontalface_default.xml')
     eye_cascade = cv2.CascadeClassifier(path+'haarcascade_eye.xml')
     faces = face_cascade.detectMultiScale(gray, 1.3, 5)
     nbr=0
+    minwidth=1000
     for (x,y,w,h) in faces:
+        if w<=minwidth:
+            minwidth=w
         nbr+=1
         crop=img[y:y+h, x:x+w]
         crop_gray=gray[y:y+h, x:x+w]
@@ -36,6 +39,7 @@ def faceDetector(image, newName="image", saveFolder="", display=True, save=False
         cv2.waitKey(0)
         cv2.destroyAllWindows()
     print "detection done!"+image
+    return minwidth
 
 # create repository dir if it does not exist
 def createRepo(dir):
@@ -51,25 +55,29 @@ def preprocessing(folder):
     createRepo(trainName)
     people=sorted(listdir(folder))
     nbClasses=len(people)
+    minwidth=1000
     for perso in people:
         people_repo=trainName+perso
         createRepo(people_repo)
         images=sorted(listdir(folder+"/"+perso))
         for image in images:
             imagepath=folder+"/"+perso+"/"+image
-            faceDetector(imagepath,image,people_repo, False, True)
-    print "Preprocessing done!"
-    return nbClasses
+            mw=faceDetector(imagepath,image,people_repo, False, True)
+            if mw<=minwidth:
+                minwidth=mw
+    print "Preprocessing done!",minwidth
+    return nbClasses,minwidth
 
 
 
 if len(sys.argv)>=2:
     image=sys.argv[1]
 else:
-    image="../g8_autre2.jpg"
+    image="../g8_autre.jpg"
 
 g8_images="../g8_images"
 
 #faceDetector(image)
+faceDetector(image,"politic.jpg","../g8_images_test2/test",False,True)
 
-preprocessing(g8_images)
+#preprocessing(g8_images)
