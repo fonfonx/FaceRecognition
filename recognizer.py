@@ -15,122 +15,10 @@ from os.path import isfile, join
 from scipy.fftpack import dct, fft
 from numpy.fft import fft2
 
-
-# represent a number with a string of 'tot' characters
-# pad with 0 if the length is less than tot
-def fillStringNumber(val, tot):
-    valstr = str(val)
-    while (len(valstr) < tot):
-        valstr = "0" + valstr
-    return valstr
+from creation import *
+from matrix import *
 
 
-def columnFromImage(img):
-    im = Image.open(img)
-    im = im.convert("L")
-    im = np.asarray(im)
-    # im=dct(im)
-    #im=fft2(im)
-    #im=absMat(im)
-    return np.transpose(im).flatten()
-
-
-# nbFaces: number of faces per training person
-def createTrainingDico(nbFaces):
-    nbMen = 50
-    nbWomen = 50
-    listImages = []
-    for i in range(1, nbMen + 1):
-        for j in range(1, nbFaces + 1):
-            nomImage = debMen + fillStringNumber(i, 3) + "-" + fillStringNumber(j, 2) + ".bmp"
-            # nomImage = debMen + fillStringNumber(i, 3) + "-" + str(j) + ".bmp"
-            pathImage = database + nomImage
-            listImages.append(columnFromImage(pathImage))
-    for i in range(1, nbWomen + 1):
-        for j in range(1, nbFaces + 1):
-            nomImage = debWomen + fillStringNumber(i, 3) + "-" + fillStringNumber(j, 2) + ".bmp"
-            # nomImage = debWomen + fillStringNumber(i, 3) + "-" + str(j) + ".bmp"
-            pathImage = database + nomImage
-            listImages.append(columnFromImage(pathImage))
-    print "Creation of dictionary done"
-    dico = (np.column_stack(listImages)).astype(float)
-    return dico
-
-
-# trainpart: percent of the repo used for training (rest -> testing)
-# percent: percent of the repo used (globally)
-# return trainSet, testSet, number of classes, number of training images and test images per class
-def createDicosFromDirectory(repo, trainpart, percent=1.0):
-    trainImages = []
-    testImages = []
-    directories = sorted(listdir(repo))
-    nbClasses = len(directories)
-    for d in directories:
-        images = sorted(listdir(repo + d))
-        n = int(percent * (len(images)))
-        nb_train = 1
-        train_max = int(trainpart * n)
-        for i in np.random.permutation(range(n)):
-            pathImage = repo + d + "/" + images[i]
-            if nb_train <= train_max:
-                nb_train += 1
-                trainImages.append(columnFromImage(pathImage))
-            else:
-                testImages.append(columnFromImage(pathImage))
-    nbFacesTrain = train_max
-    nbFacesTest = n - train_max
-    trainSet = (np.column_stack(trainImages)).astype(float)
-    testSet = (np.column_stack(testImages)).astype(float)
-    print "Training et Test sets have been created with success!"
-    return trainSet, testSet, nbClasses, nbFacesTrain, nbFacesTest
-
-
-def createDicoFromDirectory(repo):
-    imagesArray = []
-    directories = sorted(listdir(repo))
-    for d in directories:
-        images=sorted(listdir(repo+d))
-        for image in images:
-            pathImage=repo+d+"/"+image
-            #print str(columnFromImage(pathImage).shape)+pathImage
-            imagesArray.append(columnFromImage(pathImage))
-    dico=(np.column_stack(imagesArray)).astype(float)
-    print "dico created!"
-    return dico
-
-def normColumn(col):
-    return LA.norm(col)
-
-
-def normalizeColumn(col):
-    col = col.astype(float)
-    sq = normColumn(col)
-    ncol = col / sq
-    return ncol
-
-
-def normalizeMatrix(matrix):
-    n, m = matrix.shape
-    nmatrix = np.zeros((n, m))
-    for j in range(m):
-        nmatrix[:, j] = normalizeColumn(matrix[:, j])
-    return nmatrix
-
-
-def powerMatDiagSqrt(mat):
-    n, m = mat.shape
-    for i in range(n):
-        mat[i, i] = sqrt(mat[i, i])
-    return mat
-
-# returns the module of each cell (if complex matrix)
-def absMat(mat):
-    n,m=mat.shape
-    rep=np.zeros((n,m))
-    for i in range(n):
-        for j in range(m):
-            rep[i,j]=abs(mat[i,j])
-    return rep
 
 
 ############### DEBUG ############
@@ -155,10 +43,6 @@ def debug_tab(tab):
 
 ###################################
 
-
-def dimReduct(matrix, reductor):
-    return reductor.transpose().dot(matrix)
-    #return matrix
 
 def mean_sample(mat):
     n, m = mat.shape
@@ -234,8 +118,8 @@ def RSC_identif(TrainSet, Test):
         D = normalizeMatrix(WTrainRed)
         y = normalizeColumn(WTestRed)
 
-        [x, status, hist] = L.l1ls(D, y, lmbda, quiet=True)
-        #x = l2_ls(D, y, lmbda)
+        #[x, status, hist] = L.l1ls(D, y, lmbda, quiet=True)
+        x = l2_ls(D, y, lmbda)
 
         if j == 0:
             alpha = x
@@ -259,8 +143,8 @@ def test_class(man, nbr, nbMen):
         for j in range(nbFaces):
             k = 14 + j
             #k=8+j
-            nomImage = debMen + fillStringNumber(nbr, 3) + "-" + fillStringNumber(k, 2) + ".bmp"
-            # nomImage = debMen + fillStringNumber(nbr, 3) + "-" + str(k) + ".bmp"
+            nomImage = "M-" + fillStringNumber(nbr, 3) + "-" + fillStringNumber(k, 2) + ".bmp"
+            # nomImage = "M-" + fillStringNumber(nbr, 3) + "-" + str(k) + ".bmp"
             pathImage = database + nomImage
             y = columnFromImage(pathImage)
             classif = RSC_identif(dico, y)
@@ -272,8 +156,8 @@ def test_class(man, nbr, nbMen):
         for j in range(nbFaces):
             k = 14 + j
             #k=8+j
-            nomImage = debWomen + fillStringNumber(nbr, 3) + "-" + fillStringNumber(k, 2) + ".bmp"
-            # nomImage = debMen + fillStringNumber(nbr, 3) + "-" + str(k) + ".bmp"
+            nomImage = "W-" + fillStringNumber(nbr, 3) + "-" + fillStringNumber(k, 2) + ".bmp"
+            # nomImage = "W-" + fillStringNumber(nbr, 3) + "-" + str(k) + ".bmp"
             pathImage = database + nomImage
             y = columnFromImage(pathImage)
             classif = RSC_identif(dico, y)
@@ -289,11 +173,11 @@ def test_recognizer():
     nbWomen = 50
     tot = 0
     good = 0
-    for i in range(1, nbMen + 1):
+    for i in range(1, nbMen + 1,5):
         tot_int, good_int = test_class(True, i, nbMen)
         tot += tot_int
         good += good_int
-    for i in range(1, nbWomen + 1):
+    for i in range(1, nbWomen + 1,5):
         tot_int, good_int = test_class(False, i, nbMen)
         tot += tot_int
         good += good_int
@@ -322,7 +206,7 @@ def main(version):
     if version=='AR':
         classNum = 100
         nbFaces = 7
-        dico = createTrainingDico(nbFaces)
+        dico = createTrainingDico(nbFaces, database)
         reductor = PCA_reductor(dico, nbDim)
         mean = mean_sample(dico)
         dico_norm = normalizeMatrix(dico)
@@ -351,7 +235,6 @@ def main(version):
 ### DATABASES ###
 
 # database = "../AR_crop/"
-# database="../AR_DB/"
 database = "../AR_matlab/"
 ATT_DB = "../../databases/ATT/"
 Yale_DB = "../../databases/CroppedYale/"
@@ -365,12 +248,5 @@ rel_tol = 0.001
 eta = 1.0
 silence = True
 
-if database == "../AR_DB/":
-    debMen = "m-"
-    debWomen = "w-"
-else:
-    debMen = "M-"
-    debWomen = "W-"
-
-version='AR'
+version='other'
 main(version)
