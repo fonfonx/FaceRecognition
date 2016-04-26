@@ -7,7 +7,6 @@ from sklearn.decomposition import PCA
 from math import *
 import l1ls as L
 import sys
-from pca import PCA_reductor, KEigen
 from numpy import linalg as LA
 import time
 from os import listdir
@@ -15,8 +14,10 @@ from os.path import isfile, join
 from scipy.fftpack import dct, fft
 from numpy.fft import fft2
 
+from pca import PCA_reductor, KEigen
 from creation import *
 from matrix import *
+from preprocessing import *
 
 
 
@@ -173,14 +174,18 @@ def test_recognizer():
     nbWomen = 50
     tot = 0
     good = 0
-    for i in range(1, nbMen + 1,5):
+    for i in range(1, nbMen + 1,1):
         tot_int, good_int = test_class(True, i, nbMen)
         tot += tot_int
         good += good_int
-    for i in range(1, nbWomen + 1,5):
+    errors_men=tot-good
+    print "errors men",errors_men
+    for i in range(1, nbWomen + 1,1):
         tot_int, good_int = test_class(False, i, nbMen)
         tot += tot_int
         good += good_int
+    errors_women=tot-good-errors_men
+    print "errors women",errors_women
     rate = good * 1.0 / (tot * 1.0)
     print "Recognition rate:", rate
 
@@ -207,6 +212,7 @@ def main(version):
         classNum = 100
         nbFaces = 7
         dico = createTrainingDico(nbFaces, database)
+        print dico.shape
         reductor = PCA_reductor(dico, nbDim)
         mean = mean_sample(dico)
         dico_norm = normalizeMatrix(dico)
@@ -239,8 +245,8 @@ database = "../AR_matlab/"
 ATT_DB = "../../databases/ATT/"
 Yale_DB = "../../databases/CroppedYale/"
 
-nbDim = 80
-nbIter = 3
+nbDim = 120
+nbIter = 2
 param_c = 8.0
 param_tau = 0.8
 lmbda = 0.001
@@ -248,5 +254,5 @@ rel_tol = 0.001
 eta = 1.0
 silence = True
 
-version='other'
+version='AR'
 main(version)

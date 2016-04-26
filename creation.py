@@ -1,8 +1,11 @@
 # this file contains the main function to create the dictionaries
 
 import numpy as np
+import cv2
 from PIL import Image
 from os import listdir
+
+from preprocessing import *
 
 # represent a number with a string of 'tot' characters
 # pad with 0 if the length is less than tot
@@ -14,12 +17,19 @@ def fillStringNumber(val, tot):
 
 
 def columnFromImage(img):
-    im = Image.open(img)
-    im = im.convert("L")
-    im = np.asarray(im)
+    # PIL
+    #im = Image.open(img)
+    #im = im.convert("L")
+    #im = np.asarray(im)
+    im=cv2.imread(img)
+    im = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
+    im = cv2.resize(im, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_CUBIC)
+
     # im=dct(im)
     #im=fft2(im)
     #im=absMat(im)
+
+    im=preprocessing(im)
     return np.transpose(im).flatten()
 
 
