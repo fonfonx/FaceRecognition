@@ -35,6 +35,7 @@ def faceDetector(image, newName="image", saveFolder="", display=True, save=False
             # for (ex,ey,ew,eh) in eyes:
             #    cv2.rectangle(crop,(ex,ey),(ex+ew,ey+eh),(0,255,0),2)
     if display:
+        #cv2.imwrite(pathname,img)
         cv2.imshow('img', img)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
@@ -73,11 +74,11 @@ def preprocessing(folder):
 if len(sys.argv)>=2:
     image=sys.argv[1]
 else:
-    image="../g8_autre.jpg"
+    image="../g8.jpg"
 
 g8_images="../g8_images"
 
-#faceDetector(image)
-faceDetector(image,"politic.jpg","../g8_images_test2/test",False,True)
+#faceDetector(image,"g8_detect.jpg",".",True,True)
+#faceDetector(image,"politic.jpg","../g8_images_test/test",False,True)
 
 #preprocessing(g8_images)

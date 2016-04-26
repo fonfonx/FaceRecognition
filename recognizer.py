@@ -15,30 +15,6 @@ from os.path import isfile, join
 from scipy.fftpack import dct, fft
 from numpy.fft import fft2
 
-### DATABASES ###
-
-# database = "../AR_crop/"
-# database="../AR_DB/"
-database = "../AR_matlab/"
-ATT_DB = "../../databases/ATT/"
-Yale_DB = "../../databases/CroppedYale/"
-
-nbDim = 60
-nbIter = 2
-param_c = 8.0
-param_tau = 0.8
-lmbda = 0.001
-rel_tol = 0.001
-eta = 1.0
-silence = True
-
-if database == "../AR_DB/":
-    debMen = "m-"
-    debWomen = "w-"
-else:
-    debMen = "M-"
-    debWomen = "W-"
-
 
 # represent a number with a string of 'tot' characters
 # pad with 0 if the length is less than tot
@@ -177,51 +153,12 @@ def debug_tab(tab):
     for i in range(n):
         print tab[i]
 
+###################################
 
-######################################
-
-
-# def pca(matrix, dim):
-#     matrix = np.transpose(matrix)
-#     pca_object = PCA(dim)
-#     pca_object.fit(matrix)
-#     return pca_object
-
-# def pcaReduc(pca_object, matrix):
-#     matrix = np.transpose(matrix)
-#     reduct = pca_object.transform(matrix)
-#     return np.transpose(reduct)
-
-# def rho(ei,mu,delta):
-#     a=1+exp(mu*delta-mu*ei**2)
-#     b=1+exp(mu*delta)
-#     return (-1.0/(2*mu))*(log(a)-log(b))
-#
-# def ei(y,dico,alpha,i):
-#     return y[i]-dico[i,:].dot(alpha)
-#
-# def sum_rho(y,dico,alpha,mu,delta,n):
-#     rep=0.0
-#     for i in range(n):
-#         rep+=rho(ei(y,dico,alpha,i),mu,delta)
-#     return rep
-#
-# def find_eta(y,dico,alpha,x,mu,delta,n):
-#     old=sum_rho(y,dico,alpha,mu,delta,n)
-#     for eta in np.arange(1.0,0.0,-0.1):
-#         new_alpha=alpha+eta*(x-alpha)
-#         new=sum_rho(y,dico,new_alpha,mu,delta,n)
-#         if new<old:
-#             print eta
-#             return eta
-#     print 'none'
-#     return 0.05
-
-########################################################
 
 def dimReduct(matrix, reductor):
     return reductor.transpose().dot(matrix)
-
+    #return matrix
 
 def mean_sample(mat):
     n, m = mat.shape
@@ -298,7 +235,7 @@ def RSC_identif(TrainSet, Test):
         y = normalizeColumn(WTestRed)
 
         [x, status, hist] = L.l1ls(D, y, lmbda, quiet=True)
-        x = l2_ls(D, y, lmbda)
+        #x = l2_ls(D, y, lmbda)
 
         if j == 0:
             alpha = x
@@ -321,7 +258,7 @@ def test_class(man, nbr, nbMen):
     if man:
         for j in range(nbFaces):
             k = 14 + j
-            # k=8+j
+            #k=8+j
             nomImage = debMen + fillStringNumber(nbr, 3) + "-" + fillStringNumber(k, 2) + ".bmp"
             # nomImage = debMen + fillStringNumber(nbr, 3) + "-" + str(k) + ".bmp"
             pathImage = database + nomImage
@@ -334,7 +271,7 @@ def test_class(man, nbr, nbMen):
     else:
         for j in range(nbFaces):
             k = 14 + j
-            # k=8+j
+            #k=8+j
             nomImage = debWomen + fillStringNumber(nbr, 3) + "-" + fillStringNumber(k, 2) + ".bmp"
             # nomImage = debMen + fillStringNumber(nbr, 3) + "-" + str(k) + ".bmp"
             pathImage = database + nomImage
@@ -380,43 +317,60 @@ def testRecognizer(testSet):
     print "Recognition rate:", rate
 
 
-### V1: explicit names from training (AR)
+def main(version):
+    global classNum, nbFaces, dico, reductor, mean, dico_norm, nbFacesTest
+    if version=='AR':
+        classNum = 100
+        nbFaces = 7
+        dico = createTrainingDico(nbFaces)
+        reductor = PCA_reductor(dico, nbDim)
+        mean = mean_sample(dico)
+        dico_norm = normalizeMatrix(dico)
+        test_recognizer()
+    if version=='other':
+        db = ATT_DB
+        percent = 1.0
+        dico, testSet, classNum, nbFaces, nbFacesTest = createDicosFromDirectory(db, 0.5, percent)
+        reductor = PCA_reductor(dico, nbDim)
+        mean = mean_sample(dico)
+        dico_norm = normalizeMatrix(dico)
+        testRecognizer(testSet)
+    if version=='real':
+        dirTrain = "../g8_images_train/"
+        dirTest = "../g8_images_test/"
+        dico = createDicoFromDirectory(dirTrain)
+        reductor = PCA_reductor(dico, nbDim)
+        mean = mean_sample(dico)
+        dico_norm = normalizeMatrix(dico)
+        testSet = createDicoFromDirectory(dirTest)
+        classNum = 13
+        nbFaces = 7
+        nbFacesTest = 1
+        testRecognizer(testSet)
 
-# classNum = 100
-# nbFaces = 7
-#
-# dico = createTrainingDico(nbFaces)
-# reductor = PCA_reductor(dico, nbDim)
-# mean = mean_sample(dico)
-# dico_norm = normalizeMatrix(dico)
-#
-# test_recognizer()
-# print "fin"
+### DATABASES ###
 
-### V2: choose directory from training (ATT, Yale)
+# database = "../AR_crop/"
+# database="../AR_DB/"
+database = "../AR_matlab/"
+ATT_DB = "../../databases/ATT/"
+Yale_DB = "../../databases/CroppedYale/"
 
-# db=ATT_DB
-# percent=1.0
-# dico,testSet,classNum,nbFaces, nbFacesTest=createDicosFromDirectory(db,0.5,percent)
-# reductor = PCA_reductor(dico, nbDim)
-# mean=mean_sample(dico)
-# dico_norm=normalizeMatrix(dico)
-#
-# testRecognizer(testSet)
-# print "fin"
-# sys.exit()
+nbDim = 80
+nbIter = 3
+param_c = 8.0
+param_tau = 0.8
+lmbda = 0.001
+rel_tol = 0.001
+eta = 1.0
+silence = True
 
-### V3: real test
+if database == "../AR_DB/":
+    debMen = "m-"
+    debWomen = "w-"
+else:
+    debMen = "M-"
+    debWomen = "W-"
 
-dirTrain="../g8_images_train/"
-dirTest="../g8_images_test2/"
-dico=createDicoFromDirectory(dirTrain)
-reductor=PCA_reductor(dico,nbDim)
-mean=mean_sample(dico)
-dico_norm=normalizeMatrix(dico)
-testSet=createDicoFromDirectory(dirTest)
-classNum=13
-nbFaces=7
-nbFacesTest=1
-
-testRecognizer(testSet)
+version='AR'
+main(version)
