@@ -1,7 +1,7 @@
 # this file contains preprocessing function  (like Local Binary Patterns)
 
 import numpy as np
-
+import random
 
 # binary comparison
 def isBigger(a, b):
@@ -10,6 +10,9 @@ def isBigger(a, b):
     else:
         return 0
 
+####################################################################################
+######################### Local Binary Patterns ####################################
+####################################################################################
 
 def listToInt(tab):
     rep = 0
@@ -26,23 +29,6 @@ def listToInts(tab, offset):
         rep *= 2
         rep += tab[(i + offset) % n]
     return rep
-
-
-def listToMoy(tab):
-    tot = 0
-    for i in range(8):
-        tot += listToInts(tab, i)
-    return tot
-
-
-def listToMax(tab):
-    rep = listToInts(tab, 0)
-    for i in range(1, 8):
-        a = listToInts(tab, i)
-        if a > rep:
-            rep = a
-    return rep
-
 
 # auxiliary function for local binary patterns
 # return the new value for pixel (i,j)
@@ -83,8 +69,50 @@ def LBP_multiple(matrix):
                 lpb_matrix[i - 1, 8*(j - 1)+k] = newpixel_lbp_mult(matrix, i, j, k)
     return lpb_matrix
 
+############################################################################
+############################ PATCH #########################################
+############################################################################
+
+# value of a rectangular patch with dimensions h*l
+def patch_value(matrix,i, j, h, l):
+    rep=0
+    for x in range(i,i+h):
+        for y in range(j,j+l):
+            rep+=matrix[x,y]
+    return rep
+
+# tuple and dim are tuples
+def diff_patch(matrix,tuple1,tuple2,dim1,dim2):
+    #return patch_value(matrix,tuple1[0],tuple1[1],dim1[0],dim1[1])-patch_value(matrix,tuple2[0],tuple2[1],dim2[0],dim2[1])
+    return isBigger(patch_value(matrix, tuple1[0], tuple1[1], dim1[0], dim1[1]) , patch_value(matrix, tuple2[0], tuple2[1], dim2[0], dim2[1]))
+
+def random_pairing(n,x,y):
+    abs=range(x)
+    ord=range(y)
+    pairs1=[]
+    pairs2 = []
+    for i in range(n):
+        pairs1.append((random.choice(abs),random.choice(ord)))
+        pairs2.append((random.choice(abs), random.choice(ord)))
+    return pairs1, pairs2
+
+def patch_matrix(matrix,nb):
+    n,m=matrix.shape
+    rep=np.zeros((1,nb))
+    for i in range(nb):
+        rep[0,i]=diff_patch(matrix,pairs1[i],pairs2[i],(c,c),(c,c))
+    return rep
+
+
+
+
+#############################################################################
+c = 4
+pairs1,pairs2=random_pairing(5*59*43,59-c,43-c)
 
 def preprocessing(matrix):
-    return matrix
+    n,m=matrix.shape
+    #return matrix
     #return LBP(matrix)
     #return LBP_multiple(matrix)
+    return patch_matrix(matrix,5*n*m)
