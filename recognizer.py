@@ -55,7 +55,7 @@ def fdelta(residual):
     n = len(residual)
     psi = residual ** 2
     psi = np.sort(psi)
-    return psi[abs(param_tau * n)]
+    return psi[int(abs(param_tau * n))]
 
 
 def classif(D, y, x, nbFaces):
