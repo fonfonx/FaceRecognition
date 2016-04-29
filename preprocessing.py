@@ -2,6 +2,7 @@
 
 import numpy as np
 import random
+from math import *
 
 # binary comparison
 def isBigger(a, b):
@@ -103,16 +104,39 @@ def patch_matrix(matrix,nb):
         rep[0,i]=diff_patch(matrix,pairs1[i],pairs2[i],(c,c),(c,c))
     return rep
 
-
-
-
 #############################################################################
 c = 4
 pairs1,pairs2=random_pairing(5*59*43,59-c,43-c)
+#############################################################################
+
+#############################################################################
+############################# GRADIENT ######################################
+#############################################################################
+
+def gradx(matrix,i,j):
+    # print (float(matrix[i+1,j])-float(matrix[i-1,j]))/2.0
+    # print ((matrix[i+1,j])-(matrix[i-1,j]))/2
+    # print ""
+    return (float(matrix[i+1,j])-float(matrix[i-1,j]))/2.0
+
+def grady(matrix,i,j):
+    return (float(matrix[i,j+1])-float(matrix[i,j-1]))/2.0
+
+def gradmat(matrix):
+    n,m=matrix.shape
+    gradmat=np.zeros((n-2,m-2))
+    for i in range(1,n-1):
+        for j in range(1,m-1):
+            gradmat[i-1,j-1]=sqrt(gradx(matrix,i,j)**2+grady(matrix,i,j)**2)
+            #print gradmat[i-1,j-1]
+    return gradmat
+
+#############################################################################
 
 def preprocessing(matrix):
     n,m=matrix.shape
     #return matrix
+    return gradmat(matrix)
     #return LBP(matrix)
     #return LBP_multiple(matrix)
-    return patch_matrix(matrix,5*n*m)
+    #return patch_matrix(matrix,5*n*m)

@@ -174,13 +174,13 @@ def test_recognizer():
     nbWomen = 50
     tot = 0
     good = 0
-    for i in range(1, nbMen + 1,5):
+    for i in range(1, nbMen + 1,1):
         tot_int, good_int = test_class(True, i, nbMen)
         tot += tot_int
         good += good_int
     errors_men=tot-good
     print "errors men",errors_men
-    for i in range(1, nbWomen + 1,5):
+    for i in range(1, nbWomen + 1,1):
         tot_int, good_int = test_class(False, i, nbMen)
         tot += tot_int
         good += good_int
@@ -245,7 +245,7 @@ database = "../AR_matlab/"
 ATT_DB = "../../databases/ATT/"
 Yale_DB = "../../databases/CroppedYale/"
 
-nbDim = 80
+nbDim = 120
 nbIter = 2
 param_c = 8.0
 param_tau = 0.8
