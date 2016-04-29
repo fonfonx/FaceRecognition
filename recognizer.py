@@ -111,9 +111,16 @@ def RSC_identif(TrainSet, Test):
         mu = param_c / delta
         before_exp = mu * (e ** 2 - delta)
         todiag = toDiag(before_exp)
-        W = np.diag(todiag.flatten())
-        WTrain = normalizeMatrix(W.dot(TrainSet))
-        WTest = normalizeColumn(W.dot(Test))
+
+        # choice 1: create diagonal matrix
+        # W = np.diag(todiag.flatten())
+        # WTrain = normalizeMatrix(W.dot(TrainSet))
+        # WTest = normalizeColumn(W.dot(Test))
+
+        # choice 2: direct computation
+        WTrain=normalizeMatrix(TrainSet*todiag[:,np.newaxis])
+        WTest=normalizeColumn(todiag*Test)
+
         WTrainRed = dimReduct(WTrain, reductor)
         WTestRed = dimReduct(WTest, reductor)
         D = normalizeMatrix(WTrainRed)
