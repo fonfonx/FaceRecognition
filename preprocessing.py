@@ -4,12 +4,14 @@ import numpy as np
 import random
 from math import *
 
+
 # binary comparison
 def isBigger(a, b):
     if a >= b:
         return 1
     else:
         return 0
+
 
 ####################################################################################
 ######################### Local Binary Patterns ####################################
@@ -31,6 +33,7 @@ def listToInts(tab, offset):
         rep += tab[(i + offset) % n]
     return rep
 
+
 # auxiliary function for local binary patterns
 # return the new value for pixel (i,j)
 def newpixel_lbp(matrix, i, j):
@@ -42,14 +45,16 @@ def newpixel_lbp(matrix, i, j):
                 tab.append(isBigger(matrix[i + k, j + l], ref))
     return listToInt(tab)
 
-def newpixel_lbp_mult(matrix,i,j,offset):
+
+def newpixel_lbp_mult(matrix, i, j, offset):
     ref = matrix[i, j]
     tab = []
     for k in range(-1, 2):
         for l in range(-1, 2):
             if (k, l) != (0, 0):
                 tab.append(isBigger(matrix[i + k, j + l], ref))
-    return listToInts(tab,offset)
+    return listToInts(tab, offset)
+
 
 # Local Binary Patterns
 def LBP(matrix):
@@ -63,96 +68,119 @@ def LBP(matrix):
 
 def LBP_multiple(matrix):
     n, m = matrix.shape
-    lpb_matrix = np.zeros((n - 2, 8*(m - 2)))
+    lpb_matrix = np.zeros((n - 2, 8 * (m - 2)))
     for i in range(1, n - 1):
         for j in range(1, m - 1):
             for k in range(8):
-                lpb_matrix[i - 1, 8*(j - 1)+k] = newpixel_lbp_mult(matrix, i, j, k)
+                lpb_matrix[i - 1, 8 * (j - 1) + k] = newpixel_lbp_mult(matrix, i, j, k)
     return lpb_matrix
+
+
+def LBP_multiple2(matrix):
+    n, m = matrix.shape
+    lpb_matrix = np.zeros((n - 2, (m - 2),8))
+    for i in range(1, n - 1):
+        for j in range(1, m - 1):
+            for k in range(8):
+                lpb_matrix[i - 1, (j - 1) ,k] = newpixel_lbp_mult(matrix, i, j, k)
+    return np.concatenate((lpb_matrix[:,:,0],lpb_matrix[:,:,1],lpb_matrix[:,:,2],lpb_matrix[:,:,3],lpb_matrix[:,:,4],lpb_matrix[:,:,5],lpb_matrix[:,:,6],lpb_matrix[:,:,7]),axis=0)
 
 ############################################################################
 ############################ PATCH #########################################
 ############################################################################
 
 # value of a rectangular patch with dimensions h*l
-def patch_value(matrix,i, j, h, l):
-    rep=0
-    for x in range(i,i+h):
-        for y in range(j,j+l):
-            rep+=matrix[x,y]
+def patch_value(matrix, i, j, h, l):
+    rep = 0
+    for x in range(i, i + h):
+        for y in range(j, j + l):
+            rep += matrix[x, y]
     return rep
 
-# tuple and dim are tuples
-def diff_patch(matrix,tuple1,tuple2,dim1,dim2):
-    #return patch_value(matrix,tuple1[0],tuple1[1],dim1[0],dim1[1])-patch_value(matrix,tuple2[0],tuple2[1],dim2[0],dim2[1])
-    return isBigger(patch_value(matrix, tuple1[0], tuple1[1], dim1[0], dim1[1]) , patch_value(matrix, tuple2[0], tuple2[1], dim2[0], dim2[1]))
 
-def random_pairing(n,x,y):
-    abs=range(x)
-    ord=range(y)
-    pairs1=[]
+# tuple and dim are tuples
+def diff_patch(matrix, tuple1, tuple2, dim1, dim2):
+    # return patch_value(matrix,tuple1[0],tuple1[1],dim1[0],dim1[1])-patch_value(matrix,tuple2[0],tuple2[1],dim2[0],dim2[1])
+    return isBigger(patch_value(matrix, tuple1[0], tuple1[1], dim1[0], dim1[1]),
+                    patch_value(matrix, tuple2[0], tuple2[1], dim2[0], dim2[1]))
+
+
+def random_pairing(n, x, y):
+    abs = range(x)
+    ord = range(y)
+    pairs1 = []
     pairs2 = []
     for i in range(n):
-        pairs1.append((random.choice(abs),random.choice(ord)))
+        pairs1.append((random.choice(abs), random.choice(ord)))
         pairs2.append((random.choice(abs), random.choice(ord)))
     return pairs1, pairs2
 
-def patch_matrix(matrix,nb):
-    n,m=matrix.shape
-    rep=np.zeros((1,nb))
+
+def patch_matrix(matrix, nb):
+    n, m = matrix.shape
+    rep = np.zeros((1, nb))
     for i in range(nb):
-        rep[0,i]=diff_patch(matrix,pairs1[i],pairs2[i],(c,c),(c,c))
+        rep[0, i] = diff_patch(matrix, pairs1[i], pairs2[i], (c, c), (c, c))
     return rep
+
 
 #############################################################################
 c = 4
-pairs1,pairs2=random_pairing(5*59*43,59-c,43-c)
+pairs1, pairs2 = random_pairing(5 * 59 * 43, 59 - c, 43 - c)
+
+
 #############################################################################
 
 #############################################################################
 ############################# GRADIENT ######################################
 #############################################################################
 
-def gradx(matrix,i,j):
-    return (float(matrix[i+1,j])-float(matrix[i-1,j]))/2.0
+def gradx(matrix, i, j):
+    return (float(matrix[i + 1, j]) - float(matrix[i - 1, j])) / 2.0
 
-def grady(matrix,i,j):
-    return (float(matrix[i,j+1])-float(matrix[i,j-1]))/2.0
+
+def grady(matrix, i, j):
+    return (float(matrix[i, j + 1]) - float(matrix[i, j - 1])) / 2.0
+
 
 def gradmat_x(matrix):
     n, m = matrix.shape
     grx = np.zeros((n - 2, m - 2))
     for i in range(1, n - 1):
         for j in range(1, m - 1):
-            grx[i - 1, j - 1] = gradx(matrix,i,j)
+            grx[i - 1, j - 1] = gradx(matrix, i, j)
     return grx
+
 
 def gradmat_y(matrix):
     n, m = matrix.shape
     gry = np.zeros((n - 2, m - 2))
     for i in range(1, n - 1):
         for j in range(1, m - 1):
-            gry[i - 1, j - 1] = gradx(matrix,i,j)
+            gry[i - 1, j - 1] = gradx(matrix, i, j)
     return gry
 
+
 def gradmat_ch(matrix):
-    return np.concatenate((gradmat_x(matrix),gradmat_y(matrix)),axis=0)
+    return np.concatenate((gradmat_x(matrix), gradmat_y(matrix)), axis=0)
+
 
 def gradmat_norm(matrix):
-    n,m=matrix.shape
-    gradmat=np.zeros((n-2,m-2))
-    for i in range(1,n-1):
-        for j in range(1,m-1):
-            gradmat[i-1,j-1]=sqrt(gradx(matrix,i,j)**2+grady(matrix,i,j)**2)
-            #print gradmat[i-1,j-1]
+    n, m = matrix.shape
+    gradmat = np.zeros((n - 2, m - 2))
+    for i in range(1, n - 1):
+        for j in range(1, m - 1):
+            gradmat[i - 1, j - 1] = sqrt(gradx(matrix, i, j) ** 2 + grady(matrix, i, j) ** 2)
+            # print gradmat[i-1,j-1]
     return gradmat
+
 
 #############################################################################
 
 def preprocessing(matrix):
-    n,m=matrix.shape
-    #return matrix
-    return gradmat_ch(matrix)
-    #return LBP(matrix)
-    #return LBP_multiple(matrix)
-    #return patch_matrix(matrix,5*n*m)
+    n, m = matrix.shape
+    # return matrix
+    # return gradmat_ch(matrix)
+    # return LBP(matrix)
+    return LBP_multiple2(matrix)
+    # return patch_matrix(matrix,5*n*m)
