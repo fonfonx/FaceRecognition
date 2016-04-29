@@ -114,15 +114,31 @@ pairs1,pairs2=random_pairing(5*59*43,59-c,43-c)
 #############################################################################
 
 def gradx(matrix,i,j):
-    # print (float(matrix[i+1,j])-float(matrix[i-1,j]))/2.0
-    # print ((matrix[i+1,j])-(matrix[i-1,j]))/2
-    # print ""
     return (float(matrix[i+1,j])-float(matrix[i-1,j]))/2.0
 
 def grady(matrix,i,j):
     return (float(matrix[i,j+1])-float(matrix[i,j-1]))/2.0
 
-def gradmat(matrix):
+def gradmat_x(matrix):
+    n, m = matrix.shape
+    grx = np.zeros((n - 2, m - 2))
+    for i in range(1, n - 1):
+        for j in range(1, m - 1):
+            grx[i - 1, j - 1] = gradx(matrix,i,j)
+    return grx
+
+def gradmat_y(matrix):
+    n, m = matrix.shape
+    gry = np.zeros((n - 2, m - 2))
+    for i in range(1, n - 1):
+        for j in range(1, m - 1):
+            gry[i - 1, j - 1] = gradx(matrix,i,j)
+    return gry
+
+def gradmat_ch(matrix):
+    return np.concatenate((gradmat_x(matrix),gradmat_y(matrix)),axis=0)
+
+def gradmat_norm(matrix):
     n,m=matrix.shape
     gradmat=np.zeros((n-2,m-2))
     for i in range(1,n-1):
@@ -136,7 +152,7 @@ def gradmat(matrix):
 def preprocessing(matrix):
     n,m=matrix.shape
     #return matrix
-    return gradmat(matrix)
+    return gradmat_ch(matrix)
     #return LBP(matrix)
     #return LBP_multiple(matrix)
     #return patch_matrix(matrix,5*n*m)
