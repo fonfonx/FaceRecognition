@@ -56,6 +56,14 @@ def newpixel_lbp_mult(matrix, i, j, offset):
     return listToInts(tab, offset)
 
 
+def newpixel_lbp_extend(matrix,sl,i,j,offset):
+    ref=matrix[i,j]
+    tab=[]
+    for (u,v) in sl:
+        tab.append(isBigger(matrix[u,v],ref))
+    return listToInts(tab,offset)
+
+
 # Local Binary Patterns
 def LBP(matrix):
     n, m = matrix.shape
@@ -78,12 +86,36 @@ def LBP_multiple(matrix):
 
 def LBP_multiple2(matrix):
     n, m = matrix.shape
-    lpb_matrix = np.zeros((n - 2, (m - 2),8))
+    lbp_matrix = np.zeros((n - 2, (m - 2),8))
     for i in range(1, n - 1):
         for j in range(1, m - 1):
             for k in range(8):
-                lpb_matrix[i - 1, (j - 1) ,k] = newpixel_lbp_mult(matrix, i, j, k)
-    return np.concatenate((lpb_matrix[:,:,0],lpb_matrix[:,:,1],lpb_matrix[:,:,2],lpb_matrix[:,:,3],lpb_matrix[:,:,4],lpb_matrix[:,:,5],lpb_matrix[:,:,6],lpb_matrix[:,:,7]),axis=0)
+                lbp_matrix[i - 1, (j - 1) ,k] = newpixel_lbp_mult(matrix, i, j, k)
+    return np.concatenate((lbp_matrix[:,:,0],lbp_matrix[:,:,1],lbp_matrix[:,:,2],lbp_matrix[:,:,3],lbp_matrix[:,:,4],lbp_matrix[:,:,5],lbp_matrix[:,:,6],lbp_matrix[:,:,7]),axis=0)
+
+
+def random_lists(n,m):
+    rep=[]
+    for i in range(n*m):
+        sublist=[]
+        for k in range(8):
+            sublist.append((random.randint(0,n-1),random.randint(0,m-1)))
+        rep.append(sublist)
+    return rep
+
+def LBP_extend(matrix):
+    n,m=matrix.shape
+    lbp_matrix=np.zeros((n,m,8))
+    i=0
+    j=0
+    for sl in RL:
+        for k in range(8):
+            lbp_matrix[i,j,k]=newpixel_lbp_extend(matrix,sl,i,j,k)
+        j+=1
+        if (j==m):
+            j=0
+            i+=1
+    return np.concatenate((lbp_matrix[:,:,0],lbp_matrix[:,:,1],lbp_matrix[:,:,2],lbp_matrix[:,:,3],lbp_matrix[:,:,4],lbp_matrix[:,:,5],lbp_matrix[:,:,6],lbp_matrix[:,:,7]),axis=0)
 
 ############################################################################
 ############################ PATCH #########################################
@@ -126,8 +158,12 @@ def patch_matrix(matrix, nb):
 
 #############################################################################
 c = 4
-pairs1, pairs2 = random_pairing(5 * 59 * 43, 59 - c, 43 - c)
-
+ww=59
+hh=43
+#ww=51
+#hh=51
+pairs1, pairs2 = random_pairing(5 * ww*hh, ww - c, hh - c)
+RL=random_lists(ww,hh)
 
 #############################################################################
 
@@ -182,5 +218,6 @@ def preprocessing(matrix):
     # return matrix
     # return gradmat_ch(matrix)
     # return LBP(matrix)
-    return LBP_multiple2(matrix)
+    # return LBP_multiple2(matrix)
     # return patch_matrix(matrix,5*n*m)
+    return LBP_extend(matrix)
