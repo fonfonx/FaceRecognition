@@ -3,6 +3,7 @@
 import numpy as np
 import random
 from math import *
+from pca import KEigen
 
 
 # binary comparison
@@ -64,6 +65,14 @@ def newpixel_lbp_extend(matrix,sl,i,j,offset):
     return listToInts(tab,offset)
 
 
+def newpixel_lbp_patch(matrix, sl, i, j, offset, patch_size):
+    ref=patch_value(matrix,i,j,patch_size, patch_size)
+    tab=[]
+    for (u,v) in sl:
+        tab.append(isBigger(patch_value(matrix,u,v,patch_size, patch_size),ref))
+    return listToInts(tab,offset)
+
+
 # Local Binary Patterns
 def LBP(matrix):
     n, m = matrix.shape
@@ -94,12 +103,12 @@ def LBP_multiple2(matrix):
     return np.concatenate((lbp_matrix[:,:,0],lbp_matrix[:,:,1],lbp_matrix[:,:,2],lbp_matrix[:,:,3],lbp_matrix[:,:,4],lbp_matrix[:,:,5],lbp_matrix[:,:,6],lbp_matrix[:,:,7]),axis=0)
 
 
-def random_lists(n,m):
+def random_lists(n,m,minus=1):
     rep=[]
     for i in range(n*m):
         sublist=[]
         for k in range(8):
-            sublist.append((random.randint(0,n-1),random.randint(0,m-1)))
+            sublist.append((random.randint(0,n-minus),random.randint(0,m-minus)))
         rep.append(sublist)
     return rep
 
@@ -116,6 +125,20 @@ def LBP_extend(matrix):
             j=0
             i+=1
     return np.concatenate((lbp_matrix[:,:,0],lbp_matrix[:,:,1],lbp_matrix[:,:,2],lbp_matrix[:,:,3],lbp_matrix[:,:,4],lbp_matrix[:,:,5],lbp_matrix[:,:,6],lbp_matrix[:,:,7]),axis=0)
+
+
+def LBP_patch(matrix, patch_size, step):
+    n,m=matrix.shape
+    new_n=n/step
+    new_m=m/step
+    lbp_matrix=np.zeros((new_n,new_m,8))
+    for i in range(new_n-patch_size/step):
+        for j in range(new_m-patch_size/step):
+            for k in range(8):
+                lbp_matrix[i,j,k]=newpixel_lbp_patch(matrix,RL[i*new_m+j],i*step,j*step,k,patch_size)
+    return np.concatenate((lbp_matrix[:,:,0],lbp_matrix[:,:,1],lbp_matrix[:,:,2],lbp_matrix[:,:,3],lbp_matrix[:,:,4],lbp_matrix[:,:,5],lbp_matrix[:,:,6],lbp_matrix[:,:,7]),axis=0)
+
+
 
 ############################################################################
 ############################ PATCH #########################################
@@ -162,8 +185,10 @@ ww=59
 hh=43
 #ww=51
 #hh=51
+ww=30/2
+hh=22/2
 pairs1, pairs2 = random_pairing(5 * ww*hh, ww - c, hh - c)
-RL=random_lists(ww,hh)
+RL=random_lists(ww,hh,2)
 
 #############################################################################
 
@@ -212,12 +237,28 @@ def gradmat_norm(matrix):
 
 
 #############################################################################
+############################## PCA ##########################################
+#############################################################################
+
+def pca(matrix,nbdim):
+    X=np.transpose(matrix).flatten()
+    X=X.reshape(len(X),1)
+    mat=X.dot(X.transpose())
+    eigVec,eigVal=KEigen(mat,nbdim)
+    return (X.transpose().dot(eigVec)).transpose()
+    #return eigVec.transpose().dot(X)
+
+
+
+#############################################################################
 
 def preprocessing(matrix):
     n, m = matrix.shape
-    # return matrix
+    return matrix
     # return gradmat_ch(matrix)
     # return LBP(matrix)
     # return LBP_multiple2(matrix)
     # return patch_matrix(matrix,5*n*m)
-    return LBP_extend(matrix)
+    # return LBP_extend(matrix)
+    # return LBP_patch(matrix,3,3)
+
