@@ -262,4 +262,4 @@ eta = 1.0
 silence = True
 
 version='AR'
-main(version)
+#main(version)
