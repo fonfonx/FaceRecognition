@@ -240,12 +240,17 @@ def gradmat_norm(matrix):
 ############################## PCA ##########################################
 #############################################################################
 
+def meanColVec(X):
+    n=len(X)
+    return np.sum(X)*1.0/(1.0*n)
+
 def pca(matrix,nbdim):
-    X=np.transpose(matrix).flatten()
+    X=np.transpose(matrix).flatten()-meanColVec(X)
     X=X.reshape(len(X),1)
     mat=X.dot(X.transpose())
     eigVec,eigVal=KEigen(mat,nbdim)
-    return (X.transpose().dot(eigVec)).transpose()
+    red=(X.transpose().dot(eigVec)).transpose()
+    return red.reshape(nbdim)
     #return eigVec.transpose().dot(X)
 
 
