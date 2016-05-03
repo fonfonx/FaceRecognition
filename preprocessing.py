@@ -245,7 +245,8 @@ def meanColVec(X):
     return np.sum(X)*1.0/(1.0*n)
 
 def pca(matrix,nbdim):
-    X=np.transpose(matrix).flatten()-meanColVec(X)
+    X=np.transpose(matrix).flatten()
+    X=X-meanColVec(X)
     X=X.reshape(len(X),1)
     mat=X.dot(X.transpose())
     eigVec,eigVal=KEigen(mat,nbdim)
