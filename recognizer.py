@@ -89,6 +89,7 @@ def toDiag(before_exp):
             rep[i] = 1.0 / (1.0 + exp(before_exp[i]))
         else:
             rep[i] = 0.0
+        rep[i]=sqrt(rep[i])
     return rep
 
 

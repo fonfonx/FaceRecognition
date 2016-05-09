@@ -28,7 +28,8 @@ def columnFromImage(img):
     im = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
     im = cv2.resize(im, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_CUBIC)
 
-    im=dct(im)
+    #im=im.astype(float)
+    #im=dct(im)
     #im=fft2(im)
     #im=absMat(im)
     #im=preprocessing(im)
@@ -84,6 +85,28 @@ def createDicosFromDirectory(repo, trainpart, percent=1.0):
     testSet = (np.column_stack(testImages)).astype(float)
     print "Training et Test sets have been created with success!"
     return trainSet, testSet, nbClasses, nbFacesTrain, nbFacesTest
+
+# create training and testing sets from a database with a fixed number of images in both sets
+def createDicosFromDirectory_fixed(repo, trainSize, testSize):
+    trainImages = []
+    testImages = []
+    directories = sorted(listdir(repo))
+    nbClasses = len(directories)
+    for d in directories:
+        nb_train=1
+        images = sorted(listdir(repo + d))
+        #for i in np.random.permutation(range(n)):
+        for i in range(trainSize+testSize):
+            pathImage = repo + d + "/" + images[i]
+            if nb_train <= trainSize:
+                nb_train += 1
+                trainImages.append(columnFromImage(pathImage))
+            else:
+                testImages.append(columnFromImage(pathImage))
+    trainSet = (np.column_stack(trainImages)).astype(float)
+    testSet = (np.column_stack(testImages)).astype(float)
+    print "Training et Test sets have been created with success!"
+    return trainSet, testSet, nbClasses
 
 
 def createDicoFromDirectory(repo):
