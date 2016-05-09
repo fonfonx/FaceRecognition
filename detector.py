@@ -13,11 +13,11 @@ path='/home/xavier/opencv/opencv-2.4.10/data/haarcascades/'
 def faceDetector(image, newName="image", saveFolder="", display=True, save=False):
     path = '/home/xavier/opencv/opencv-2.4.10/data/haarcascades/'
     img=cv2.imread(image)
-    img = cv2.resize(img,None,fx=1.5, fy=1.5, interpolation = cv2.INTER_CUBIC)
+    #img = cv2.resize(img,None,fx=1.5, fy=1.5, interpolation = cv2.INTER_CUBIC)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     face_cascade = cv2.CascadeClassifier(path + 'haarcascade_frontalface_default.xml')
     eye_cascade = cv2.CascadeClassifier(path+'haarcascade_eye.xml')
-    faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+    faces = face_cascade.detectMultiScale(gray, 1.3, 5, minSize=(100,100))
     nbr=0
     minwidth=1000
     for (x,y,w,h) in faces:
@@ -77,6 +77,10 @@ else:
     image="../g8.jpg"
 
 g8_images="../g8_images"
+
+lfw="../LFW_big"
+
+preprocessing(lfw)
 
 #faceDetector(image,"g8_detect.jpg",".",True,True)
 #faceDetector(image,"politic.jpg","../g8_images_test/test",False,True)
