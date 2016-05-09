@@ -14,7 +14,7 @@ def test():
     img=cv2.imread(img)
     img = cv2.resize(img, None, fx=2.5, fy=2.5, interpolation=cv2.INTER_CUBIC)
     gray=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-    s=cv2.SIFT(contrastThreshold=0.07)
+    s=cv2.SIFT(contrastThreshold=threshold_sift)
     #sift = cv2.xfeatures2d.SIFT_create()
     kp = s.detect(gray, None)
     kp,des=s.compute(gray,kp)
@@ -32,7 +32,7 @@ def createSIFTDico(nbFaces, database):
     listSIFT = []
     nbLabels = []
     nbLabels.append(0)
-    sift=cv2.SIFT(contrastThreshold=0.07)
+    sift=cv2.SIFT(contrastThreshold=threshold_sift)
     for i in range(1, nbMen + 1):
         for j in range(1, nbFaces + 1):
             nomImage = "M-" + fillStringNumber(i, 3) + "-" + fillStringNumber(j, 2) + ".bmp"
@@ -98,10 +98,13 @@ def sift_identif(sift,dico):
             alpha = alpha + eta * (x - alpha)
 
         if not (silence):
-            debug_alpha(alpha)
+            #debug_alpha(alpha)
+            pass
 
         e = norm_y * (NTest - dico_norm.dot(alpha))
-    return classif(D, y, alpha, nbLabels)
+    cl=classif(D, y, alpha, nbLabels)
+    print cl
+    return cl
 
 def classif(D, y, x, nbLabels):
     diff_tab = np.zeros(classNum)
@@ -112,14 +115,15 @@ def classif(D, y, x, nbLabels):
         diff_tab[c] = diff.dot(diff)
     if not (silence):
         # print diff_tab
-        debug_diff_tab(diff_tab)
+        #debug_diff_tab(diff_tab)
+        pass
     return np.argmin(diff_tab) + 1
 
 
 def image_identif(image,dico):
     img=cv2.imread(image)
     img=cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    sift = cv2.SIFT(contrastThreshold=0.07)
+    sift = cv2.SIFT(contrastThreshold=threshold_sift)
     kp = sift.detect(img, None)
     kp, des = sift.compute(img, kp)
     des = des.transpose()
@@ -173,6 +177,8 @@ eta = 1.0
 silence = False
 classNum=100
 nbFaces=7
+
+threshold_sift=0.102
 
 database = "../AR_matlab/"
 dico, nbLabels=createSIFTDico(7,database)

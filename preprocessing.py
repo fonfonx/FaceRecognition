@@ -251,9 +251,9 @@ def pca(matrix,nbdim):
     mat=X.dot(X.transpose())
     eigVec,eigVal=KEigen(mat,nbdim)
     red=(X.transpose().dot(eigVec)).transpose()
-    return red.reshape(nbdim)
+    #return red.reshape(nbdim)
     #return eigVec.transpose().dot(X)
-
+    return eigVal
 
 
 #############################################################################

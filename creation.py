@@ -25,13 +25,12 @@ def columnFromImage(img):
     im = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
     im = cv2.resize(im, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_CUBIC)
 
-    #im=dct(im)
+    im=dct(im)
     #im=fft2(im)
     #im=absMat(im)
-    print img
     #im=preprocessing(im)
-    return pca(im,200)
-    #return np.transpose(im).flatten()
+    #return pca(im,200)
+    return np.transpose(im).flatten()
 
 
 # nbFaces: number of faces per training person
