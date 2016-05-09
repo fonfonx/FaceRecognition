@@ -146,23 +146,22 @@ def LBP_patch(matrix, patch_size, step):
 
 # value of a rectangular patch with dimensions h*l
 def patch_value(matrix, i, j, h, l):
-    rep = 0
+    rep=0
     for x in range(i, i + h):
         for y in range(j, j + l):
             rep += matrix[x, y]
-    return rep
+    return rep*1.0/(h*l*1.0)
 
 
 # tuple and dim are tuples
 def diff_patch(matrix, tuple1, tuple2, dim1, dim2):
-    # return patch_value(matrix,tuple1[0],tuple1[1],dim1[0],dim1[1])-patch_value(matrix,tuple2[0],tuple2[1],dim2[0],dim2[1])
-    return isBigger(patch_value(matrix, tuple1[0], tuple1[1], dim1[0], dim1[1]),
-                    patch_value(matrix, tuple2[0], tuple2[1], dim2[0], dim2[1]))
+    return patch_value(matrix,tuple1[0],tuple1[1],dim1[0],dim1[1])-patch_value(matrix,tuple2[0],tuple2[1],dim2[0],dim2[1])
+    #return isBigger(patch_value(matrix, tuple1[0], tuple1[1], dim1[0], dim1[1]),patch_value(matrix, tuple2[0], tuple2[1], dim2[0], dim2[1]))
 
 
-def random_pairing(n, x, y):
-    abs = range(x)
-    ord = range(y)
+def random_pairing(n, x, y, c):
+    abs = range(0,x,c)
+    ord = range(0,y,c)
     pairs1 = []
     pairs2 = []
     for i in range(n):
@@ -185,9 +184,7 @@ ww=59
 hh=43
 #ww=51
 #hh=51
-ww=30/2
-hh=22/2
-pairs1, pairs2 = random_pairing(5 * ww*hh, ww - c, hh - c)
+pairs1, pairs2 = random_pairing(5 * ww*hh, ww-c, hh-c,c)
 RL=random_lists(ww,hh,2)
 
 #############################################################################
@@ -251,20 +248,19 @@ def pca(matrix,nbdim):
     mat=X.dot(X.transpose())
     eigVec,eigVal=KEigen(mat,nbdim)
     red=(X.transpose().dot(eigVec)).transpose()
-    #return red.reshape(nbdim)
+    return red.reshape(nbdim)
     #return eigVec.transpose().dot(X)
-    return eigVal
 
 
 #############################################################################
 
 def preprocessing(matrix):
     n, m = matrix.shape
-    return matrix
+    # return matrix
     # return gradmat_ch(matrix)
     # return LBP(matrix)
     # return LBP_multiple2(matrix)
-    # return patch_matrix(matrix,5*n*m)
+    return patch_matrix(matrix,5*n*m)
     # return LBP_extend(matrix)
     # return LBP_patch(matrix,3,3)
 

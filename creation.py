@@ -29,13 +29,13 @@ def columnFromImage(img):
     #im = np.asarray(im)
     im=cv2.imread(img)
     im = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
-    im = cv2.resize(im, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_CUBIC)
+    #im = cv2.resize(im, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_CUBIC)
 
     #im=im.astype(float)
     #im=dct(im)
-    im=stack_complex_matrix(fft2(im))
+    #im=stack_complex_matrix(fft2(im))
     #im=absMat(im)
-    #im=preprocessing(im)
+    im=preprocessing(im)
     #return pca(im,200)
     return np.transpose(im).flatten()
 
