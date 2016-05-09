@@ -19,6 +19,9 @@ def fillStringNumber(val, tot):
     return valstr
 
 
+def stack_complex_matrix(mat):
+    return np.concatenate((mat.real,mat.imag))
+
 def columnFromImage(img):
     # PIL
     #im = Image.open(img)
@@ -30,7 +33,7 @@ def columnFromImage(img):
 
     #im=im.astype(float)
     #im=dct(im)
-    #im=fft2(im)
+    im=stack_complex_matrix(fft2(im))
     #im=absMat(im)
     #im=preprocessing(im)
     #return pca(im,200)
