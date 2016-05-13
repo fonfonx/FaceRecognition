@@ -2,6 +2,7 @@
 
 import numpy as np
 import cv2
+import dlib
 from PIL import Image
 from os import listdir
 from os.path import isfile, join
@@ -27,6 +28,7 @@ def columnFromImage(img):
     #im = Image.open(img)
     #im = im.convert("L")
     #im = np.asarray(im)
+    print img
     im=cv2.imread(img)
     im = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
     #im = cv2.resize(im, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_CUBIC)
@@ -35,9 +37,23 @@ def columnFromImage(img):
     #im=dct(im)
     #im=stack_complex_matrix(fft2(im))
     #im=absMat(im)
-    im=preprocessing(im)
+    #im=preprocessing(im)
     #return pca(im,200)
-    return np.transpose(im).flatten()
+    rep= np.transpose(im).flatten()
+    #return rep
+    return landmarkImage(im)
+
+def landmarkImage(img):
+    predictor_path = "/home/xavier/dlib-18.18/shape_predictor_68_face_landmarks.dat"
+    predictor = dlib.shape_predictor(predictor_path)
+    cascade_path = '/home/xavier/opencv/opencv-2.4.10/data/haarcascades/haarcascade_frontalface_default.xml'
+    cascade = cv2.CascadeClassifier(cascade_path)
+    rects = cascade.detectMultiScale(img, 1.3, 5)
+    x, y, w, h = rects[0].astype(long)
+    rect = dlib.rectangle(x, y, x + w, y + h)
+    rep=np.array([img[p.x,p.y] for p in predictor(img, rect).parts()])
+    return rep
+    #return np.matrix([[p.x, p.y] for p in predictor(img, rect).parts()])
 
 
 # nbFaces: number of faces per training person

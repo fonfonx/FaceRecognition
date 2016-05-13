@@ -256,11 +256,11 @@ def pca(matrix,nbdim):
 
 def preprocessing(matrix):
     n, m = matrix.shape
-    # return matrix
+    return matrix
     # return gradmat_ch(matrix)
     # return LBP(matrix)
     # return LBP_multiple2(matrix)
-    return patch_matrix(matrix,5*n*m)
+    # return patch_matrix(matrix,5*n*m)
     # return LBP_extend(matrix)
     # return LBP_patch(matrix,3,3)
 
