@@ -51,7 +51,15 @@ def landmarkImage(img):
     rects = cascade.detectMultiScale(img, 1.3, 5)
     x, y, w, h = rects[0].astype(long)
     rect = dlib.rectangle(x, y, x + w, y + h)
-    rep=np.array([img[p.x,p.y] for p in predictor(img, rect).parts()])
+    #rep=np.array([img[p.x,p.y] for p in predictor(img, rect).parts()])
+    lm=predictor(img,rect).parts()
+    rep=np.zeros(25*len(lm))
+    l=0
+    for p in lm:
+        for i in range(-2,3):
+            for j in range(-2,3):
+                rep[i*5+j+25*l]=img[p.x+i,p.y+j]
+        l+=1
     return rep
     #return np.matrix([[p.x, p.y] for p in predictor(img, rect).parts()])
 

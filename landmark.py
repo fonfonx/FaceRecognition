@@ -37,9 +37,10 @@ def test(im):
 
 
 #im=cv2.imread('../LFW_big_train_resized/Abdullah_Gul/1Abdullah_Gul_0001.jpg')
-im=cv2.imread('../AR_matlab/M-001-01.bmp')
-cv2.imshow('img',im)
-#cv2.imshow('Result',annotate_landmarks(im,get_landmarks(im)))
+#im=cv2.imread('../AR_matlab/M-001-01.bmp')
+im=cv2.imread('../photomoi.jpg')
+#cv2.imshow('img',im)
+cv2.imshow('Result',annotate_landmarks(im,get_landmarks(im)))
 #cv2.imshow('Result',annotate_landmarks(im,test(im)))
 cv2.waitKey(0)
 cv2.destroyAllWindows()
