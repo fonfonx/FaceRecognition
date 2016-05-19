@@ -10,7 +10,7 @@ from scipy.fftpack import dct, fft
 from numpy.fft import fft2
 
 from preprocessing import *
-from alignment import align
+from alignment import align, dist
 
 # represent a number with a string of 'tot' characters
 # pad with 0 if the length is less than tot
@@ -34,7 +34,7 @@ def columnFromImage(img):
     im = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
     #im = cv2.resize(im, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_CUBIC)
 
-    im=align(im)
+    #im=align(im)
 
     #im=im.astype(float)
     #im=dct(im)
@@ -42,9 +42,10 @@ def columnFromImage(img):
     #im=absMat(im)
     #im=preprocessing(im)
     #return pca(im,200)
-    rep= np.transpose(im).flatten()
-    return rep
+    #rep= np.transpose(im).flatten()
+    #return rep
     #return landmarkImage(im)
+    return positionImage(im)
 
 def landmarkImage(img):
     predictor_path = "/home/xavier/dlib-18.18/shape_predictor_68_face_landmarks.dat"
@@ -65,6 +66,28 @@ def landmarkImage(img):
         l+=1
     return rep
     #return np.matrix([[p.x, p.y] for p in predictor(img, rect).parts()])
+
+
+
+# the image is mapped to the vector of distances between nose and other landmarks
+def positionImage(img):
+    predictor_path = "/home/xavier/dlib-18.18/shape_predictor_68_face_landmarks.dat"
+    predictor = dlib.shape_predictor(predictor_path)
+    cascade_path = '/home/xavier/opencv/opencv-2.4.10/data/haarcascades/haarcascade_frontalface_default.xml'
+    cascade = cv2.CascadeClassifier(cascade_path)
+    rects = cascade.detectMultiScale(img, 1.3, 5)
+    x, y, w, h = rects[0].astype(long)
+    rect = dlib.rectangle(x, y, x + w, y + h)
+    lm = predictor(img, rect).parts()
+    rep=np.zeros(67)
+    tup30=lm[30].x,lm[30].y
+    Znorm=dist((lm[27].x,lm[27].y),tup30)
+    for i in range(68):
+        if i!=30:
+            tup=lm[i].x,lm[i].y
+            rep[i-(i>30)]=dist(tup,tup30)/(Znorm*1.0)
+    return rep
+
 
 
 # nbFaces: number of faces per training person

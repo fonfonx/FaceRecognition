@@ -7,11 +7,11 @@ from math import *
 from os import listdir
 
 # initial parameters for a 59x43image
-LEFT_EYE_POS=(14,19)
+LEFT_EYE_POS=(12,19)
 EYES_SPACE=18
 FACE_HEIGHT=26 #from nose to chin
-HEIGHT=59
-WIDTH=43
+HEIGHT=35
+WIDTH=35
 
 PREDICTOR_PATH = "/home/xavier/dlib-18.18/shape_predictor_68_face_landmarks.dat"
 predictor = dlib.shape_predictor(PREDICTOR_PATH)
@@ -27,6 +27,10 @@ def landmarks(img,detectface):
     if detectface:
         rects = cascade.detectMultiScale(img, 1.1, 5)
         x, y, w, h = rects[0].astype(long)
+        x=x.item()
+        y=y.item()
+        w=w.item()
+        h=h.item()
         rect = dlib.rectangle(x, y, x + w, y + h)
         # print x,y,w,h
     else:
@@ -87,11 +91,11 @@ def initializeParameters(repo):
 
 def align(img):
     # initial parameters for a 59x43image
-    LEFT_EYE_POS = (12, 19)
+    LEFT_EYE_POS = (5, 10)
     EYES_SPACE = 18
     FACE_HEIGHT = 26  # from nose to chin
-    HEIGHT = 59
-    WIDTH = 43
+    HEIGHT = 30
+    WIDTH = 35
 
     PREDICTOR_PATH = "/home/xavier/dlib-18.18/shape_predictor_68_face_landmarks.dat"
     predictor = dlib.shape_predictor(PREDICTOR_PATH)
@@ -101,8 +105,8 @@ def align(img):
 
 
 
-    cv2.imshow("img",img)
-    nose,chin,le,re,me=usefulPoints(img,True)
+    #cv2.imshow("img",img)
+    nose,chin,le,re,me=usefulPoints(img,False)
     #1st step
     #rotation around left eye
     eye_vector=np.array(re)-np.array(le)
@@ -117,17 +121,18 @@ def align(img):
     y_factor=FACE_HEIGHT/face_height
     factor=(x_factor+y_factor)/2.0
     #print "factors:",x_factor,y_factor
-    img_res = cv2.resize(img_rot, None, fx=x_factor, fy=x_factor, interpolation=cv2.INTER_CUBIC)
+    img_res = cv2.resize(img_rot, None, fx=x_factor, fy=y_factor, interpolation=cv2.INTER_CUBIC)
     # cv2.imshow("res",img_res)
     # cv2.waitKey(0)
     # cv2.destroyAllWindows()
     #2nd step
     img=img_res
     #translation
-    nose, chin, le, re, me = usefulPoints(img,True)
+    nose, chin, le, re, me = usefulPoints(img,False)
     transl_vec=tuple(np.array(LEFT_EYE_POS)-np.array(le))
     img_t=translation(img,transl_vec)
     #crop
+    #print "ezr",img_t.shape
     crop_img=img_t[0:HEIGHT,0:WIDTH]
     img=crop_img
 
@@ -136,14 +141,14 @@ def align(img):
     #nose, chin, le, re, me = usefulPoints(img, False)
     #print le,re
 
-    # cv2.imshow("res",img)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
+    cv2.imshow("res",img)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
     return img
 
 #im="../photomoi.jpg"
-# im="../LFW_verybig/Abdullah_Gul/Abdullah_Gul_0005.jpg"
+# im="../LFW_verybig/Hillary_Clinton/Hillary_Clinton_0006.jpg"
 # img=cv2.imread(im)
 # align(img)
-#repo="../AR_matlab/"
-#initializeParameters(repo)
+# repo="../AR_matlab/"
+# initializeParameters(repo)

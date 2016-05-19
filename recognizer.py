@@ -246,7 +246,8 @@ def main(version):
         nbFacesTest = 1
         testRecognizer(testSet)
     if version=='lfw':
-        repo="../LFW_verybig/"#_train_resized/"
+        #repo="../LFW_big_train_resized/"
+        repo="../LFW_verybig/"
         nbFaces = 7
         nbFacesTest = 3
         dico,testSet, classNum=createDicosFromDirectory_fixed(repo,nbFaces,nbFacesTest)

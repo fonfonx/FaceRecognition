@@ -5,7 +5,6 @@ import random
 from math import *
 from pca import KEigen
 
-
 # binary comparison
 def isBigger(a, b):
     if a >= b:
@@ -250,7 +249,6 @@ def pca(matrix,nbdim):
     red=(X.transpose().dot(eigVec)).transpose()
     return red.reshape(nbdim)
     #return eigVec.transpose().dot(X)
-
 
 #############################################################################
 
