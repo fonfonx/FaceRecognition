@@ -54,6 +54,10 @@ def landmarkImage(img):
     cascade = cv2.CascadeClassifier(cascade_path)
     rects = cascade.detectMultiScale(img, 1.3, 5)
     x, y, w, h = rects[0].astype(long)
+    x = x.item()
+    y = y.item()
+    h = h.item()
+    w = w.item()
     rect = dlib.rectangle(x, y, x + w, y + h)
     #rep=np.array([img[p.x,p.y] for p in predictor(img, rect).parts()])
     lm=predictor(img,rect).parts()
@@ -77,15 +81,31 @@ def positionImage(img):
     cascade = cv2.CascadeClassifier(cascade_path)
     rects = cascade.detectMultiScale(img, 1.3, 5)
     x, y, w, h = rects[0].astype(long)
+    x=x.item()
+    y=y.item()
+    h=h.item()
+    w=w.item()
     rect = dlib.rectangle(x, y, x + w, y + h)
     lm = predictor(img, rect).parts()
-    rep=np.zeros(67)
+    rep=np.zeros(67*3)
     tup30=lm[30].x,lm[30].y
-    Znorm=dist((lm[27].x,lm[27].y),tup30)
+    tup37 = lm[37].x, lm[37].y
+    tup44 = lm[44].x, lm[44].y
+    Znorm30=dist((lm[27].x,lm[27].y),tup30)
+    Znorm37 = dist((lm[27].x, lm[27].y), tup37)
+    Znorm44 = dist((lm[27].x, lm[27].y), tup44)
     for i in range(68):
         if i!=30:
             tup=lm[i].x,lm[i].y
-            rep[i-(i>30)]=dist(tup,tup30)/(Znorm*1.0)
+            rep[i-(i>30)]=dist(tup,tup30)/(Znorm30*1.0)
+    for i in range(68):
+        if i != 37:
+            tup = lm[i].x, lm[i].y
+            rep[67+i - (i > 37)] = dist(tup, tup37) / (Znorm37 * 1.0)
+    for i in range(68):
+        if i != 44:
+            tup = lm[i].x, lm[i].y
+            rep[134+i - (i > 44)] = dist(tup, tup44) / (Znorm44 * 1.0)
     return rep
 
 
