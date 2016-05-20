@@ -48,9 +48,11 @@ def columnFromImage(img):
     return positionImage(im)
 
 def landmarkImage(img):
-    predictor_path = "/home/xavier/dlib-18.18/shape_predictor_68_face_landmarks.dat"
+    #predictor_path = "/home/xavier/dlib-18.18/shape_predictor_68_face_landmarks.dat"
+    predictor_path="/root/Programs/dlib-18.18/shape_predictor_68_face_landmarks.dat"
     predictor = dlib.shape_predictor(predictor_path)
-    cascade_path = '/home/xavier/opencv/opencv-2.4.10/data/haarcascades/haarcascade_frontalface_default.xml'
+    #cascade_path = '/home/xavier/opencv/opencv-2.4.10/data/haarcascades/haarcascade_frontalface_default.xml'
+    cascade_path="root/Programs/opencv-2.4.10/data/haarcascades/haarcascade_frontalface_default.xml"
     cascade = cv2.CascadeClassifier(cascade_path)
     rects = cascade.detectMultiScale(img, 1.3, 5)
     x, y, w, h = rects[0].astype(long)
@@ -72,12 +74,26 @@ def landmarkImage(img):
     #return np.matrix([[p.x, p.y] for p in predictor(img, rect).parts()])
 
 
+# intermediate function for the next method
+def fillDist(lm,center,norm):
+    tupcenter=lm[center].x,lm[center].y
+    tupnorm=lm[norm].x,lm[norm].y
+    Znorm=dist(tupnorm,tupcenter)
+    rep=np.zeros(67)
+    for i in range(68):
+        if i!=center:
+            tup = lm[i].x, lm[i].y
+            rep[i-(i>center)]=dist(tup,tupcenter)/(1.0*Znorm)
+    return rep
+
 
 # the image is mapped to the vector of distances between nose and other landmarks
 def positionImage(img):
-    predictor_path = "/home/xavier/dlib-18.18/shape_predictor_68_face_landmarks.dat"
+    #predictor_path = "/home/xavier/dlib-18.18/shape_predictor_68_face_landmarks.dat"
+    predictor_path = "/root/Programs/dlib-18.18/shape_predictor_68_face_landmarks.dat"
     predictor = dlib.shape_predictor(predictor_path)
-    cascade_path = '/home/xavier/opencv/opencv-2.4.10/data/haarcascades/haarcascade_frontalface_default.xml'
+    #cascade_path = '/home/xavier/opencv/opencv-2.4.10/data/haarcascades/haarcascade_frontalface_default.xml'
+    cascade_path = "root/Programs/opencv-2.4.10/data/haarcascades/haarcascade_frontalface_default.xml"
     cascade = cv2.CascadeClassifier(cascade_path)
     rects = cascade.detectMultiScale(img, 1.3, 5)
     x, y, w, h = rects[0].astype(long)
@@ -87,25 +103,14 @@ def positionImage(img):
     w=w.item()
     rect = dlib.rectangle(x, y, x + w, y + h)
     lm = predictor(img, rect).parts()
-    rep=np.zeros(67*3)
-    tup30=lm[30].x,lm[30].y
-    tup37 = lm[37].x, lm[37].y
-    tup44 = lm[44].x, lm[44].y
-    Znorm30=dist((lm[27].x,lm[27].y),tup30)
-    Znorm37 = dist((lm[27].x, lm[27].y), tup37)
-    Znorm44 = dist((lm[27].x, lm[27].y), tup44)
-    for i in range(68):
-        if i!=30:
-            tup=lm[i].x,lm[i].y
-            rep[i-(i>30)]=dist(tup,tup30)/(Znorm30*1.0)
-    for i in range(68):
-        if i != 37:
-            tup = lm[i].x, lm[i].y
-            rep[67+i - (i > 37)] = dist(tup, tup37) / (Znorm37 * 1.0)
-    for i in range(68):
-        if i != 44:
-            tup = lm[i].x, lm[i].y
-            rep[134+i - (i > 44)] = dist(tup, tup44) / (Znorm44 * 1.0)
+    rep30=fillDist(lm,30,27)
+    rep37=fillDist(lm,37,27)
+    rep44=fillDist(lm,44,27)
+    rep0=fillDist(lm,0,27)
+    rep16=fillDist(lm,16,27)
+    rep56=fillDist(lm,56,27)
+    rep8=fillDist(lm,8,27)
+    rep=np.concatenate((rep30,rep37,rep44,rep0,rep16,rep56,rep8))
     return rep
 
 

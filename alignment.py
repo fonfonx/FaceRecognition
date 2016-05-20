@@ -13,9 +13,11 @@ FACE_HEIGHT=26 #from nose to chin
 HEIGHT=35
 WIDTH=35
 
-PREDICTOR_PATH = "/home/xavier/dlib-18.18/shape_predictor_68_face_landmarks.dat"
-predictor = dlib.shape_predictor(PREDICTOR_PATH)
-cascade_path='/home/xavier/opencv/opencv-2.4.10/data/haarcascades/haarcascade_frontalface_default.xml'
+#predictor_path = "/home/xavier/dlib-18.18/shape_predictor_68_face_landmarks.dat"
+predictor_path = "/root/Programs/dlib-18.18/shape_predictor_68_face_landmarks.dat"
+predictor = dlib.shape_predictor(predictor_path)
+#cascade_path='/home/xavier/opencv/opencv-2.4.10/data/haarcascades/haarcascade_frontalface_default.xml'
+cascade_path="root/Programs/opencv-2.4.10/data/haarcascades/haarcascade_frontalface_default.xml"
 cascade = cv2.CascadeClassifier(cascade_path)
 
 def dist(tupleA,tupleB):
@@ -97,9 +99,11 @@ def align(img):
     HEIGHT = 30
     WIDTH = 35
 
-    PREDICTOR_PATH = "/home/xavier/dlib-18.18/shape_predictor_68_face_landmarks.dat"
-    predictor = dlib.shape_predictor(PREDICTOR_PATH)
-    cascade_path = '/home/xavier/opencv/opencv-2.4.10/data/haarcascades/haarcascade_frontalface_default.xml'
+    #predictor_path = "/home/xavier/dlib-18.18/shape_predictor_68_face_landmarks.dat"
+    predictor_path = "/root/Programs/dlib-18.18/shape_predictor_68_face_landmarks.dat"
+    predictor = dlib.shape_predictor(predictor_path)
+    #cascade_path = '/home/xavier/opencv/opencv-2.4.10/data/haarcascades/haarcascade_frontalface_default.xml'
+    cascade_path = "root/Programs/opencv-2.4.10/data/haarcascades/haarcascade_frontalface_default.xml"
     cascade = cv2.CascadeClassifier(cascade_path)
 
 
