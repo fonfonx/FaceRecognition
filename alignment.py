@@ -5,6 +5,8 @@ import dlib
 import numpy as np
 from math import *
 from os import listdir
+from scipy.spatial import Delaunay
+import matplotlib.pyplot as plt
 
 # initial parameters for a 59x43image
 LEFT_EYE_POS=(12,19)
@@ -13,11 +15,11 @@ FACE_HEIGHT=26 #from nose to chin
 HEIGHT=35
 WIDTH=35
 
-#predictor_path = "/home/xavier/dlib-18.18/shape_predictor_68_face_landmarks.dat"
-predictor_path = "/root/Programs/dlib-18.18/shape_predictor_68_face_landmarks.dat"
+predictor_path = "/home/xavier/dlib-18.18/shape_predictor_68_face_landmarks.dat"
+#predictor_path = "/root/Programs/dlib-18.18/shape_predictor_68_face_landmarks.dat"
 predictor = dlib.shape_predictor(predictor_path)
-#cascade_path='/home/xavier/opencv/opencv-2.4.10/data/haarcascades/haarcascade_frontalface_default.xml'
-cascade_path="root/Programs/opencv-2.4.10/data/haarcascades/haarcascade_frontalface_default.xml"
+cascade_path='/home/xavier/opencv/opencv-2.4.10/data/haarcascades/haarcascade_frontalface_default.xml'
+#cascade_path="root/Programs/opencv-2.4.10/data/haarcascades/haarcascade_frontalface_default.xml"
 cascade = cv2.CascadeClassifier(cascade_path)
 
 def dist(tupleA,tupleB):
@@ -99,12 +101,12 @@ def align(img):
     HEIGHT = 30
     WIDTH = 35
 
-    #predictor_path = "/home/xavier/dlib-18.18/shape_predictor_68_face_landmarks.dat"
-    predictor_path = "/root/Programs/dlib-18.18/shape_predictor_68_face_landmarks.dat"
-    predictor = dlib.shape_predictor(predictor_path)
-    #cascade_path = '/home/xavier/opencv/opencv-2.4.10/data/haarcascades/haarcascade_frontalface_default.xml'
-    cascade_path = "root/Programs/opencv-2.4.10/data/haarcascades/haarcascade_frontalface_default.xml"
-    cascade = cv2.CascadeClassifier(cascade_path)
+    # #predictor_path = "/home/xavier/dlib-18.18/shape_predictor_68_face_landmarks.dat"
+    # predictor_path = "/root/Programs/dlib-18.18/shape_predictor_68_face_landmarks.dat"
+    # predictor = dlib.shape_predictor(predictor_path)
+    # #cascade_path = '/home/xavier/opencv/opencv-2.4.10/data/haarcascades/haarcascade_frontalface_default.xml'
+    # cascade_path = "/root/Programs/opencv-2.4.10/data/haarcascades/haarcascade_frontalface_default.xml"
+    # cascade = cv2.CascadeClassifier(cascade_path)
 
 
 
@@ -150,9 +152,102 @@ def align(img):
     cv2.destroyAllWindows()
     return img
 
+
+################################################################
+################ IMAGE WARPING VERSION #########################
+################################################################
+
+def processImage(img):
+    # landmark extraction
+    lm=landmarks(img,True)
+    # rectangle around face
+    ymax=lm[8][1]
+    xmin=lm[0][0]
+    xmax=lm[16][0]
+    ymin=min(lm[19][1],lm[24][1])
+    xr=xmax-xmin
+    yr=ymax-ymin
+    xmin_rect=int(xmin-0.05*xr)
+    xmax_rect=int(xmax+0.05*xr)
+    ymin_rect=int(ymin-0.05*yr)
+    ymax_rect=int(ymax+0.05*yr)
+    # new landmarks (on the rectange sides)
+    top_points=np.array([[x,ymin_rect] for x in np.linspace(xmin_rect,xmax_rect,15)])
+    bottom_points=np.array([[x,ymax_rect] for x in np.linspace(xmin_rect,xmax_rect,20)])
+    side_points=np.linspace(int(ymin_rect+yr*1.1/12.0),int(ymax_rect-yr*1.1/12.0),11)
+    left_points=np.array([[xmin_rect,y] for y in side_points])
+    right_points=np.array([[xmax_rect,y] for y in side_points])
+    # all points for the triangulation
+    lm_points=np.array([[x,y] for (x,y) in lm])
+    all_points=np.concatenate((lm_points,top_points,right_points,bottom_points,left_points))
+    #print all_points
+    return all_points
+
+def delaunayTriangulation(points):
+    tri=Delaunay(points)
+    # plt.triplot(points[:, 0], points[:, 1], tri.simplices.copy())
+    # plt.plot(points[:, 0], points[:, 1], 'o')
+    # plt.show()
+    return tri.simplices
+
+# base_points: coordinates of the landmark points of reference image
+# triangulation: Delaunay triangulation of the base points
+def warpImage(img, triangulation, base_points):
+    all_points=processImage(img)
+    img_out = 255 * np.ones(img.shape, dtype=img.dtype)
+    for t in triangulation:
+        # triangles to map one another
+        src_tri=np.array([[all_points[x][0],all_points[x][1]] for x in t]).astype(np.float32)
+        dest_tri=np.array([[base_points[x][0],base_points[x][1]] for x in t]).astype(np.float32)
+        # bounding boxes
+        src_rect=cv2.boundingRect(np.array([src_tri]))
+        dest_rect=cv2.boundingRect(np.array([dest_tri]))
+        # crop images
+        src_crop_tri=np.zeros((3,2),dtype=np.float32)
+        dest_crop_tri=np.zeros((3,2))
+        for k in range(0,3):
+            for dim in range(0,2):
+                src_crop_tri[k][dim]=src_tri[k][dim]-src_rect[dim]
+                dest_crop_tri[k][dim]=dest_tri[k][dim]-dest_rect[dim]
+        src_crop_img=img[src_rect[1]:src_rect[1]+src_rect[3],src_rect[0]:src_rect[0]+src_rect[2]]
+        # affine transformation estimation
+        mat=cv2.getAffineTransform(np.float32(src_crop_tri),np.float32(dest_crop_tri))
+        dest_crop_img = cv2.warpAffine(src_crop_img, mat, (dest_rect[2], dest_rect[3]), None, flags=cv2.INTER_LINEAR,
+                                     borderMode=cv2.BORDER_REFLECT_101)
+        # use a mask to keep only the triangle pixels
+        # Get mask by filling triangle
+        mask = np.zeros((dest_rect[3], dest_rect[2], 3), dtype=np.float32)
+        cv2.fillConvexPoly(mask, np.int32(dest_crop_tri), (1.0, 1.0, 1.0), 16, 0)
+
+        # Apply mask to cropped region
+        dest_crop_img = dest_crop_img * mask
+
+        # Copy triangular region of the rectangular patch to the output image
+        img_out[dest_rect[1]:dest_rect[1] + dest_rect[3], dest_rect[0]:dest_rect[0] + dest_rect[2]] = \
+            img_out[dest_rect[1]:dest_rect[1] + dest_rect[3], dest_rect[0]:dest_rect[0] + dest_rect[2]] * ((1.0, 1.0, 1.0) - mask)
+
+        img_out[dest_rect[1]:dest_rect[1] + dest_rect[3], dest_rect[0]:dest_rect[0] + dest_rect[2]] = \
+            img_out[dest_rect[1]:dest_rect[1] + dest_rect[3], dest_rect[0]:dest_rect[0] + dest_rect[2]] + dest_crop_img
+    return img_out
+
+
+
+
+
+
+
+
 #im="../photomoi.jpg"
-# im="../LFW_verybig/Hillary_Clinton/Hillary_Clinton_0006.jpg"
-# img=cv2.imread(im)
+im="../LFW_verybig/Bill_Clinton/Bill_Clinton_0006.jpg"
+im2="../LFW_verybig/Bill_Clinton/Bill_Clinton_0005.jpg"
+img=cv2.imread(im)
+img2=cv2.imread(im2)
 # align(img)
 # repo="../AR_matlab/"
 # initializeParameters(repo)
+bp=processImage(img)
+tr=delaunayTriangulation(bp)
+img_out=warpImage(img2,tr,bp)
+cv2.imshow("wrap",img_out)
+cv2.waitKey()
+cv2.destroyAllWindows()
