@@ -167,10 +167,12 @@ def processImage(img):
     ymin=min(lm[19][1],lm[24][1])
     xr=xmax-xmin
     yr=ymax-ymin
-    xmin_rect=int(xmin-0.05*xr)
-    xmax_rect=int(xmax+0.05*xr)
-    ymin_rect=int(ymin-0.05*yr)
-    ymax_rect=int(ymax+0.05*yr)
+    epsilon=0.08
+    xmin_rect=int(xmin-epsilon*xr)
+    xmax_rect=int(xmax+epsilon*xr)
+    ymin_rect=int(ymin-epsilon*yr)
+    ymax_rect=int(ymax+epsilon*yr)
+    coord=(xmin_rect,xmax_rect,ymin_rect,ymax_rect)
     # new landmarks (on the rectange sides)
     top_points=np.array([[x,ymin_rect] for x in np.linspace(xmin_rect,xmax_rect,15)])
     bottom_points=np.array([[x,ymax_rect] for x in np.linspace(xmin_rect,xmax_rect,20)])
@@ -181,7 +183,7 @@ def processImage(img):
     lm_points=np.array([[x,y] for (x,y) in lm])
     all_points=np.concatenate((lm_points,top_points,right_points,bottom_points,left_points))
     #print all_points
-    return all_points
+    return all_points, coord
 
 def delaunayTriangulation(points):
     tri=Delaunay(points)
@@ -192,8 +194,8 @@ def delaunayTriangulation(points):
 
 # base_points: coordinates of the landmark points of reference image
 # triangulation: Delaunay triangulation of the base points
-def warpImage(img, triangulation, base_points):
-    all_points=processImage(img)
+def warpImage(img, triangulation, base_points,coord):
+    all_points,co=processImage(img)
     img_out = 255 * np.ones(img.shape, dtype=img.dtype)
     for t in triangulation:
         # triangles to map one another
@@ -228,6 +230,23 @@ def warpImage(img, triangulation, base_points):
 
         img_out[dest_rect[1]:dest_rect[1] + dest_rect[3], dest_rect[0]:dest_rect[0] + dest_rect[2]] = \
             img_out[dest_rect[1]:dest_rect[1] + dest_rect[3], dest_rect[0]:dest_rect[0] + dest_rect[2]] + dest_crop_img
+    return img_out[coord[2]:coord[3],coord[0]:coord[1]]
+
+def detectFace(img):
+    path = '/home/xavier/opencv/opencv-2.4.10/data/haarcascades/'
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    face_cascade = cv2.CascadeClassifier(path + 'haarcascade_frontalface_default.xml')
+    faces = face_cascade.detectMultiScale(gray, 1.1, 5, minSize=(100, 100))
+    x,y,w,h=faces[0]
+    face_img=img[y:y+h, x:x+w]
+    return face_img
+
+
+def meshAlign(img,imgref):
+    bp,coord=processImage(imgref)
+    tr=delaunayTriangulation(bp)
+    img_out=warpImage(img,tr,bp,coord)
+    print img_out.shape
     return img_out
 
 
@@ -237,17 +256,18 @@ def warpImage(img, triangulation, base_points):
 
 
 
-#im="../photomoi.jpg"
-im="../LFW_verybig/Bill_Clinton/Bill_Clinton_0006.jpg"
-im2="../LFW_verybig/Bill_Clinton/Bill_Clinton_0005.jpg"
-img=cv2.imread(im)
-img2=cv2.imread(im2)
-# align(img)
-# repo="../AR_matlab/"
-# initializeParameters(repo)
-bp=processImage(img)
-tr=delaunayTriangulation(bp)
-img_out=warpImage(img2,tr,bp)
-cv2.imshow("wrap",img_out)
-cv2.waitKey()
-cv2.destroyAllWindows()
+
+# #im="../photomoi.jpg"
+# im="../LFW_verybig/Bill_Clinton/Bill_Clinton_0019.jpg"
+# im2="../LFW_verybig/Bill_Clinton/Bill_Clinton_0002.jpg"
+# img=cv2.imread(im)
+# img2=cv2.imread(im2)
+# # align(img)
+# # repo="../AR_matlab/"
+# # initializeParameters(repo)
+# bp,coord=processImage(img)
+# tr=delaunayTriangulation(bp)
+# img_out=warpImage(img2,tr,bp,coord)
+# cv2.imshow("wrap",img_out)
+# cv2.waitKey()
+# cv2.destroyAllWindows()

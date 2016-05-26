@@ -10,7 +10,7 @@ from scipy.fftpack import dct, fft
 from numpy.fft import fft2
 
 from preprocessing import *
-from alignment import align, dist
+from alignment import align, dist, meshAlign
 
 # represent a number with a string of 'tot' characters
 # pad with 0 if the length is less than tot
@@ -24,6 +24,9 @@ def fillStringNumber(val, tot):
 def stack_complex_matrix(mat):
     return np.concatenate((mat.real,mat.imag))
 
+
+imref = cv2.imread("../LFW_verybig/George_W_Bush/George_W_Bush_0089.jpg")
+
 def columnFromImage(img):
     # PIL
     #im = Image.open(img)
@@ -31,10 +34,17 @@ def columnFromImage(img):
     #im = np.asarray(im)
     print img
     im=cv2.imread(img)
+
+    im = meshAlign(im, imref)
+
     im = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
     #im = cv2.resize(im, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_CUBIC)
 
+
+    #imref = cv2.cvtColor(imref, cv2.COLOR_BGR2GRAY)
     #im=align(im)
+
+
 
     #im=im.astype(float)
     #im=dct(im)
@@ -42,10 +52,12 @@ def columnFromImage(img):
     #im=absMat(im)
     #im=preprocessing(im)
     #return pca(im,200)
-    #rep= np.transpose(im).flatten()
-    #return rep
+    rep= np.transpose(im).flatten()
+    return rep
     #return landmarkImage(im)
-    return positionImage(im)
+
+
+    #return positionImage(im)
 
 def landmarkImage(img):
     #predictor_path = "/home/xavier/dlib-18.18/shape_predictor_68_face_landmarks.dat"
