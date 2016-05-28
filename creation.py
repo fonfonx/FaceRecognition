@@ -8,6 +8,7 @@ from os import listdir
 from os.path import isfile, join
 from scipy.fftpack import dct, fft
 from numpy.fft import fft2
+import random
 
 from preprocessing import *
 from alignment import align, dist, meshAlign
@@ -35,7 +36,7 @@ def columnFromImage(img):
     print img
     im=cv2.imread(img)
 
-    im = meshAlign(im, imref)
+    #im = meshAlign(im, imref)
 
     im = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
     #im = cv2.resize(im, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_CUBIC)
@@ -43,8 +44,8 @@ def columnFromImage(img):
 
     #imref = cv2.cvtColor(imref, cv2.COLOR_BGR2GRAY)
     #im=align(im)
-
-
+    #cv2.imshow("al",im)
+    #cv2.waitKey()
 
     #im=im.astype(float)
     #im=dct(im)
@@ -52,12 +53,12 @@ def columnFromImage(img):
     #im=absMat(im)
     #im=preprocessing(im)
     #return pca(im,200)
-    rep= np.transpose(im).flatten()
-    return rep
+    #rep= np.transpose(im).flatten()
+    #return rep
     #return landmarkImage(im)
 
-
-    #return positionImage(im)
+    #print RM
+    return positionImageRM(im,RM)
 
 def landmarkImage(img):
     #predictor_path = "/home/xavier/dlib-18.18/shape_predictor_68_face_landmarks.dat"
@@ -123,6 +124,38 @@ def positionImage(img):
     rep56=fillDist(lm,56,27)
     rep8=fillDist(lm,8,27)
     rep=np.concatenate((rep30,rep37,rep44,rep0,rep16,rep56,rep8))
+    return rep
+
+RM=np.zeros((500,2),dtype=np.int)
+
+for i in range(500):
+    RM[i][0]=int(random.randint(0,67))
+    RM[i][1]=int(random.randint(0,67))
+
+# amelioration of the preceding function with random mapping
+def positionImageRM(img,RM):
+    predictor_path = "/home/xavier/dlib-18.18/shape_predictor_68_face_landmarks.dat"
+    # predictor_path = "/root/Programs/dlib-18.18/shape_predictor_68_face_landmarks.dat"
+    predictor = dlib.shape_predictor(predictor_path)
+    cascade_path = '/home/xavier/opencv/opencv-2.4.10/data/haarcascades/haarcascade_frontalface_default.xml'
+    # cascade_path = "/root/Programs/opencv-2.4.10/data/haarcascades/haarcascade_frontalface_default.xml"
+    cascade = cv2.CascadeClassifier(cascade_path)
+    rects = cascade.detectMultiScale(img, 1.3, 5)
+    x, y, w, h = rects[0].astype(long)
+    x = x.item()
+    y = y.item()
+    h = h.item()
+    w = w.item()
+    rect = dlib.rectangle(x, y, x + w, y + h)
+    lm = predictor(img, rect).parts()
+    Znorm=dist((lm[27].x,lm[27].y),(lm[30].x,lm[30].y))
+    rep=np.zeros(500)
+    for i in range(500):
+        a=RM[i][0]
+        b=RM[i][1]
+        tup1=lm[a].x,lm[a].y
+        tup2=lm[b].x,lm[b].y
+        rep[i]=dist(tup1,tup2)/(1.0*Znorm)
     return rep
 
 
