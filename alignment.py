@@ -266,18 +266,19 @@ def meshAlign(img,imgref):
 
 
 
-# #im="../photomoi.jpg"
-# #im="../LFW_verybig/Bill_Clinton/Bill_Clinton_0019.jpg"
+#im="../photomoi.jpg"
+#im="../LFW_verybig/Bill_Clinton/Bill_Clinton_0019.jpg"
 # im="testgulechec.jpg"
+# im='../tete.jpg'
 # im2="../LFW_verybig/Bill_Clinton/Bill_Clinton_0002.jpg"
 # img=cv2.imread(im)
 # img2=cv2.imread(im2)
 # align(img)
-# # repo="../AR_matlab/"
-# # initializeParameters(repo)
-# # bp,coord=processImage(img)
-# # tr=delaunayTriangulation(bp)
-# # img_out=warpImage(img2,tr,bp,coord)
-# # cv2.imshow("wrap",img_out)
-# # cv2.waitKey()
-# # cv2.destroyAllWindows()
+# repo="../AR_matlab/"
+# initializeParameters(repo)
+# bp,coord=processImage(img)
+# tr=delaunayTriangulation(bp)
+# img_out=warpImage(img2,tr,bp,coord)
+# cv2.imshow("wrap",img_out)
+# cv2.waitKey()
+# cv2.destroyAllWindows()
