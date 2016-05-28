@@ -95,7 +95,7 @@ def initializeParameters(repo):
 
 def align(img):
     # initial parameters for a 59x43image
-    LEFT_EYE_POS = (5, 10)
+    LEFT_EYE_POS = (5, 7)
     EYES_SPACE = 18
     FACE_HEIGHT = 26  # from nose to chin
     HEIGHT = 30
@@ -111,8 +111,8 @@ def align(img):
 
 
 
-    #cv2.imshow("img",img)
     nose,chin,le,re,me=usefulPoints(img,False)
+    print le,re
     #1st step
     #rotation around left eye
     eye_vector=np.array(re)-np.array(le)
@@ -126,19 +126,28 @@ def align(img):
     x_factor = EYES_SPACE / eye_space
     y_factor=FACE_HEIGHT/face_height
     factor=(x_factor+y_factor)/2.0
-    #print "factors:",x_factor,y_factor
+    print "factors:",x_factor,y_factor
     img_res = cv2.resize(img_rot, None, fx=x_factor, fy=y_factor, interpolation=cv2.INTER_CUBIC)
+    cv2.imwrite("gul1step.jpg",img_res)
     # cv2.imshow("res",img_res)
     # cv2.waitKey(0)
     # cv2.destroyAllWindows()
+
     #2nd step
     img=img_res
+
     #translation
-    nose, chin, le, re, me = usefulPoints(img,False)
+    #nose, chin, le, re, me = usefulPoints(img,True)
+    #print le,re
+
+    #detection does not always work
+    # we compute le manually
+    le=(le[0]*x_factor,le[1]*y_factor)
+
     transl_vec=tuple(np.array(LEFT_EYE_POS)-np.array(le))
     img_t=translation(img,transl_vec)
+
     #crop
-    #print "ezr",img_t.shape
     crop_img=img_t[0:HEIGHT,0:WIDTH]
     img=crop_img
 
@@ -147,9 +156,9 @@ def align(img):
     #nose, chin, le, re, me = usefulPoints(img, False)
     #print le,re
 
-    cv2.imshow("res",img)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    # cv2.imshow("res",img)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
     return img
 
 
@@ -258,16 +267,17 @@ def meshAlign(img,imgref):
 
 
 # #im="../photomoi.jpg"
-# im="../LFW_verybig/Bill_Clinton/Bill_Clinton_0019.jpg"
+# #im="../LFW_verybig/Bill_Clinton/Bill_Clinton_0019.jpg"
+# im="testgulechec.jpg"
 # im2="../LFW_verybig/Bill_Clinton/Bill_Clinton_0002.jpg"
 # img=cv2.imread(im)
 # img2=cv2.imread(im2)
-# # align(img)
+# align(img)
 # # repo="../AR_matlab/"
 # # initializeParameters(repo)
-# bp,coord=processImage(img)
-# tr=delaunayTriangulation(bp)
-# img_out=warpImage(img2,tr,bp,coord)
-# cv2.imshow("wrap",img_out)
-# cv2.waitKey()
-# cv2.destroyAllWindows()
+# # bp,coord=processImage(img)
+# # tr=delaunayTriangulation(bp)
+# # img_out=warpImage(img2,tr,bp,coord)
+# # cv2.imshow("wrap",img_out)
+# # cv2.waitKey()
+# # cv2.destroyAllWindows()

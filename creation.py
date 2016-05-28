@@ -36,16 +36,14 @@ def columnFromImage(img):
     print img
     im=cv2.imread(img)
 
-    #im = meshAlign(im, imref)
+    im = meshAlign(im, imref)
+    #print im.shape
 
     im = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
     #im = cv2.resize(im, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_CUBIC)
 
-
     #imref = cv2.cvtColor(imref, cv2.COLOR_BGR2GRAY)
-    #im=align(im)
-    #cv2.imshow("al",im)
-    #cv2.waitKey()
+    im=align(im)
 
     #im=im.astype(float)
     #im=dct(im)
@@ -53,12 +51,13 @@ def columnFromImage(img):
     #im=absMat(im)
     #im=preprocessing(im)
     #return pca(im,200)
-    #rep= np.transpose(im).flatten()
-    #return rep
+    rep= np.transpose(im).flatten()
+    #print rep.shape
+    return rep
     #return landmarkImage(im)
 
     #print RM
-    return positionImageRM(im,RM)
+    #return positionImageRM(im,RM)
 
 def landmarkImage(img):
     #predictor_path = "/home/xavier/dlib-18.18/shape_predictor_68_face_landmarks.dat"
@@ -151,8 +150,8 @@ def positionImageRM(img,RM):
     Znorm=dist((lm[27].x,lm[27].y),(lm[30].x,lm[30].y))
     rep=np.zeros(500)
     for i in range(500):
-        a=RM[i][0]
-        b=RM[i][1]
+        a=RM[i][0].item()
+        b=RM[i][1].item()
         tup1=lm[a].x,lm[a].y
         tup2=lm[b].x,lm[b].y
         rep[i]=dist(tup1,tup2)/(1.0*Znorm)
