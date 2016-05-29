@@ -30,6 +30,7 @@ def dist(tupleA,tupleB):
 def landmarks(img,detectface):
     if detectface:
         rects = cascade.detectMultiScale(img, 1.1, 5)
+        rects = rects[np.argsort(rects[:, 3])[::-1]]
         x, y, w, h = rects[0].astype(long)
         x=x.item()
         y=y.item()

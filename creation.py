@@ -46,6 +46,10 @@ def columnFromImage(img):
     #imref = cv2.cvtColor(imref, cv2.COLOR_BGR2GRAY)
     im=align(im)
 
+    cv2.imshow("al",im)
+    cv2.waitKey()
+    cv2.destroyAllWindows()
+
     #im=im.astype(float)
     #im=dct(im)
     #im=stack_complex_matrix(fft2(im))
@@ -68,6 +72,7 @@ def landmarkImage(img):
     cascade_path="/root/Programs/opencv-2.4.10/data/haarcascades/haarcascade_frontalface_default.xml"
     cascade = cv2.CascadeClassifier(cascade_path)
     rects = cascade.detectMultiScale(img, 1.3, 5)
+    rects=rects[np.argsort(rects[:,3])[::-1]]
     x, y, w, h = rects[0].astype(long)
     x = x.item()
     y = y.item()
@@ -109,6 +114,7 @@ def positionImage(img):
     #cascade_path = "/root/Programs/opencv-2.4.10/data/haarcascades/haarcascade_frontalface_default.xml"
     cascade = cv2.CascadeClassifier(cascade_path)
     rects = cascade.detectMultiScale(img, 1.3, 5)
+    rects=rects[np.argsort(rects[:,3])[::-1]]
     x, y, w, h = rects[0].astype(long)
     x=x.item()
     y=y.item()
@@ -141,6 +147,7 @@ def positionImageRM(img,RM):
     # cascade_path = "/root/Programs/opencv-2.4.10/data/haarcascades/haarcascade_frontalface_default.xml"
     cascade = cv2.CascadeClassifier(cascade_path)
     rects = cascade.detectMultiScale(img, 1.3, 5)
+    rects=rects[np.argsort(rects[:,3])[::-1]]
     x, y, w, h = rects[0].astype(long)
     x = x.item()
     y = y.item()
