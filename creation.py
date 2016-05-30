@@ -46,9 +46,9 @@ def columnFromImage(img):
     #imref = cv2.cvtColor(imref, cv2.COLOR_BGR2GRAY)
     im=align(im)
 
-    cv2.imshow("al",im)
-    cv2.waitKey()
-    cv2.destroyAllWindows()
+    # cv2.imshow("al",im)
+    # cv2.waitKey()
+    # cv2.destroyAllWindows()
 
     #im=im.astype(float)
     #im=dct(im)

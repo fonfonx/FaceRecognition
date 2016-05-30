@@ -8,8 +8,10 @@ cascade_path='/home/xavier/opencv/opencv-2.4.10/data/haarcascades/haarcascade_fr
 cascade = cv2.CascadeClassifier(cascade_path)
 
 def get_landmarks(im):
-    rects = cascade.detectMultiScale(im, 1.1,5)
+    rects = cascade.detectMultiScale(im, 1.2,5)
     rects=rects[np.argsort(rects[:,3])[::-1]]
+    print len(rects)
+    print rects
     if len(rects)==0:
         x=0
         y=0
@@ -48,7 +50,8 @@ def test(im):
 #im=cv2.imread('gul1step.jpg')
 #im=cv2.imread('../tete2.png')
 #im=cv2.imread('testgulechec.jpg')
-im=cv2.imread('../LFW_verybig/Abdullah_Gul/Abdullah_Gul_0010.jpg')
+#im=cv2.imread('../LFW_verybig/Abdullah_Gul/Abdullah_Gul_0010.jpg')
+im=cv2.imread('../LFW_verybig/Amelie_Mauresmo/Amelie_Mauresmo_0008.jpg')
 #im = cv2.resize(im, None, fx=2.0, fy=2.0, interpolation=cv2.INTER_CUBIC)
 cv2.imshow('Result',annotate_landmarks(im,get_landmarks(im)))
 #cv2.imshow('Result',annotate_landmarks(im,test(im)))

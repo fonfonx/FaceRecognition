@@ -17,7 +17,8 @@ def faceDetector(image, newName="image", saveFolder="", display=True, save=False
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     face_cascade = cv2.CascadeClassifier(path + 'haarcascade_frontalface_default.xml')
     eye_cascade = cv2.CascadeClassifier(path+'haarcascade_eye.xml')
-    faces = face_cascade.detectMultiScale(gray, 1.3, 5, minSize=(100,100))
+    faces = face_cascade.detectMultiScale(gray, 1.2, 5)#, minSize=(100,100))
+    print faces
     nbr=0
     minwidth=1000
     for (x,y,w,h) in faces:
@@ -80,9 +81,12 @@ g8_images="../g8_images"
 
 lfw="../LFW_big"
 
-preprocessing(lfw)
+#preprocessing(lfw)
 
 #faceDetector(image,"g8_detect.jpg",".",True,True)
 #faceDetector(image,"politic.jpg","../g8_images_test/test",False,True)
 
 #preprocessing(g8_images)
+
+im="../LFW_verybig/Abdullah_Gul/Abdullah_Gul_0001.jpg"
+faceDetector(im,"qf","j",True, False)

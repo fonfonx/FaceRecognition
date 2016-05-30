@@ -29,15 +29,20 @@ def dist(tupleA,tupleB):
 #detectface: boolean value indicating if we have to perform face detection on the picture or not
 def landmarks(img,detectface):
     if detectface:
-        rects = cascade.detectMultiScale(img, 1.1, 5)
-        rects = rects[np.argsort(rects[:, 3])[::-1]]
-        x, y, w, h = rects[0].astype(long)
-        x=x.item()
-        y=y.item()
-        w=w.item()
-        h=h.item()
-        rect = dlib.rectangle(x, y, x + w, y + h)
-        # print x,y,w,h
+        rects = cascade.detectMultiScale(img, 1.3, 5)
+        if len(rects)>0:
+            rects = rects[np.argsort(rects[:, 3])[::-1]]
+            x, y, w, h = rects[0].astype(long)
+            x=x.item()
+            y=y.item()
+            w=w.item()
+            h=h.item()
+            rect = dlib.rectangle(x, y, x + w, y + h)
+            # print x,y,w,h
+        else:
+            h, w = img.shape[:2]
+            # print h,w
+            rect = dlib.rectangle(0, 0, h, w)
     else:
         h,w=img.shape[:2]
         #print h,w
@@ -96,11 +101,11 @@ def initializeParameters(repo):
 
 def align(img):
     # initial parameters for a 59x43image
-    LEFT_EYE_POS = (5, 7)
+    LEFT_EYE_POS = (6, 7)
     EYES_SPACE = 18
     FACE_HEIGHT = 26  # from nose to chin
-    HEIGHT = 30
-    WIDTH = 35
+    HEIGHT = 28
+    WIDTH = 30
 
     # #predictor_path = "/home/xavier/dlib-18.18/shape_predictor_68_face_landmarks.dat"
     # predictor_path = "/root/Programs/dlib-18.18/shape_predictor_68_face_landmarks.dat"
@@ -113,7 +118,7 @@ def align(img):
 
 
     nose,chin,le,re,me=usefulPoints(img,False)
-    print le,re
+    #print le,re
     #1st step
     #rotation around left eye
     eye_vector=np.array(re)-np.array(le)
@@ -127,9 +132,9 @@ def align(img):
     x_factor = EYES_SPACE / eye_space
     y_factor=FACE_HEIGHT/face_height
     factor=(x_factor+y_factor)/2.0
-    print "factors:",x_factor,y_factor
+    #print "factors:",x_factor,y_factor
     img_res = cv2.resize(img_rot, None, fx=x_factor, fy=y_factor, interpolation=cv2.INTER_CUBIC)
-    cv2.imwrite("gul1step.jpg",img_res)
+    #cv2.imwrite("gul1step.jpg",img_res)
     # cv2.imshow("res",img_res)
     # cv2.waitKey(0)
     # cv2.destroyAllWindows()
@@ -256,7 +261,7 @@ def meshAlign(img,imgref):
     bp,coord=processImage(imgref)
     tr=delaunayTriangulation(bp)
     img_out=warpImage(img,tr,bp,coord)
-    print img_out.shape
+    #print img_out.shape
     return img_out
 
 
