@@ -27,7 +27,7 @@ def stack_complex_matrix(mat):
 
 
 #imref = cv2.imread("../LFW_verybig/George_W_Bush/George_W_Bush_0089.jpg")
-imref=cv2.imread("../tete2.jpg")
+imref=cv2.imread("../tete3.jpg")
 
 def columnFromImage(img):
     # PIL
