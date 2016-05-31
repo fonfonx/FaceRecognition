@@ -16,8 +16,9 @@ from alignment import align, dist, meshAlign, preprocess, landmarks
 from config import *
 
 
-#imref = cv2.imread("../LFW_verybig/George_W_Bush/George_W_Bush_0089.jpg")
 imref=cv2.imread("../tete3.jpg")
+#imref=cv2.imread("../AR_matlab/M-001-01.bmp")
+
 
 def columnFromImage(img):
     print img
@@ -48,30 +49,31 @@ def createDicosFromDirectory_fixed(repo, trainSize, testSize):
     label=0
     for d in directories:
         nb_img=0
-        i=1
+        i=0
         images = sorted(listdir(repo + d))
         shuffle(images)
-        while nb_img < trainSize+testSize and i<len(images):
-            pathImage = repo + d + "/" + images[i]
-            i+=1
-            try:
-                if nb_img < trainSize:
-                    trainImages.append(columnFromImage(pathImage))
+        if len(images)>=trainSize+testSize:
+            while nb_img < trainSize+testSize and i<len(images):
+                pathImage = repo + d + "/" + images[i]
+                i+=1
+                try:
+                    if nb_img < trainSize:
+                        trainImages.append(columnFromImage(pathImage))
+                    else:
+                        testImages.append(columnFromImage(pathImage))
+                    nb_img+=1
+                except (cv2.error,TypeError) as e:
+                    print "error image "+pathImage
+            if nb_img<trainSize+testSize:
+                print "removing "+d
+                if nb_img<trainSize:
+                    del trainImages[-nb_img:]
                 else:
-                    testImages.append(columnFromImage(pathImage))
-                nb_img+=1
-            except cv2.error as e:
-                print "error image "+pathImage
-        if nb_img<trainSize+testSize:
-            print "removing "+d
-            if nb_img<trainSize:
-                del trainImages[-nb_img:]
+                    del trainImages[-trainSize:]
+                    del testImages[-(nb_img-trainSize):]
             else:
-                del trainImages[-trainSize:]
-                del testImages[-(nb_img-trainSize):]
-        else:
-            label+=1
-            nameLabels[label]=d
+                label+=1
+                nameLabels[label]=d
     trainSet = (np.column_stack(trainImages)).astype(float)
     testSet = (np.column_stack(testImages)).astype(float)
     print "Training and Test sets have been created with success!"
