@@ -250,7 +250,8 @@ def main(version):
         repo="../LFW_verybig/"
         nbFaces = 7
         nbFacesTest = 3
-        dico,testSet, classNum=createDicosFromDirectory_fixed(repo,nbFaces,nbFacesTest)
+        dico,testSet, classNum, nameLabels=createDicosFromDirectory_fixed(repo,nbFaces,nbFacesTest)
+        print nameLabels
         reductor = PCA_reductor(dico, nbDim)
         mean = mean_sample(dico)
         dico_norm = normalizeMatrix(dico)
