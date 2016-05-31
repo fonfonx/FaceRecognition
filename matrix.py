@@ -4,6 +4,7 @@ import numpy as np
 from numpy import linalg as LA
 from math import *
 
+
 def normColumn(col):
     return LA.norm(col)
 
@@ -23,21 +24,15 @@ def normalizeMatrix(matrix):
     return nmatrix
 
 
+# square root of a diagonal matrix
 def powerMatDiagSqrt(mat):
     n, m = mat.shape
     for i in range(n):
         mat[i, i] = sqrt(mat[i, i])
     return mat
 
-# returns the module of each cell (if complex matrix)
-def absMat(mat):
-    n,m=mat.shape
-    rep=np.zeros((n,m))
-    for i in range(n):
-        for j in range(m):
-            rep[i,j]=abs(mat[i,j])
-    return rep
 
+# dimensionality reduction
 def dimReduct(matrix, reductor):
     return reductor.transpose().dot(matrix)
-    #return matrix
+    # return matrix

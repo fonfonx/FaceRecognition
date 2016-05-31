@@ -11,7 +11,7 @@ from numpy.fft import fft2
 import random
 
 from preprocessing import *
-from alignment import align, dist, meshAlign
+from alignment import align, dist, meshAlign, preprocess
 
 # represent a number with a string of 'tot' characters
 # pad with 0 if the length is less than tot
@@ -37,23 +37,13 @@ def columnFromImage(img):
     print img
     im=cv2.imread(img)
 
-    im = meshAlign(im, imref)
-    #print im.shape
-
-    im = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
-    #im = cv2.resize(im, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_CUBIC)
-
-    #imref = cv2.cvtColor(imref, cv2.COLOR_BGR2GRAY)
-    im=align(im)
+    im=preprocess(im,imref)
 
     # cv2.imshow("al",im)
     # cv2.waitKey()
     # cv2.destroyAllWindows()
 
     #im=im.astype(float)
-    #im=dct(im)
-    #im=stack_complex_matrix(fft2(im))
-    #im=absMat(im)
     #im=preprocessing(im)
     #return pca(im,200)
     rep= np.transpose(im).flatten()
