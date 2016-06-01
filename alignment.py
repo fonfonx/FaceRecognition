@@ -50,7 +50,12 @@ def usefulPoints(img, detectface):
     right_eye = tuple((np.array(lm[43]) + np.array(lm[44]) + np.array(lm[46]) + np.array(lm[47])) / 4.0)
     chin = lm[8]
     mideye = lm[27]
-    return nose, chin, left_eye, right_eye, mideye
+    # mouth
+    mouth_array=np.zeros(2)
+    for i in range(48,68):
+        mouth_array+=np.array(lm[i])
+    mouth=tuple(mouth_array/20.0)
+    return nose, chin, left_eye, right_eye, mideye, mouth
 
 
 # rotation of the image
@@ -70,7 +75,7 @@ def translation(img, vec):
 
 # manual align function
 def align(img):
-    nose, chin, le, re, me = usefulPoints(img, False)
+    nose, chin, le, re, me, mouth = usefulPoints(img, False)
 
     # 1st step
     # rotation around left eye
@@ -79,9 +84,10 @@ def align(img):
     img_rot = rotate(img, theta * 180.0 / pi, le)
     # resizing
     eye_space = dist(le, re)
-    face_height = dist(chin, me)
+    #face_height = dist(chin, me)
+    eye_mouth=dist(me,mouth)
     x_factor = EYES_SPACE / eye_space
-    y_factor = FACE_HEIGHT / face_height
+    y_factor = EYE_MOUTH / eye_mouth
     factor = (x_factor + y_factor) / 2.0
     img_res = cv2.resize(img_rot, None, fx=x_factor, fy=y_factor, interpolation=cv2.INTER_CUBIC)
 
@@ -233,23 +239,28 @@ def initializeParameters(repo):
     lArray = np.zeros(2)
     rArray = np.zeros(2)
     mArray = np.zeros(2)
+    mouthArray = np.zeros(2)
     for im in listImages:
+        print im
         img = cv2.imread(repo + im)
-        nose, chin, le, re, me = usefulPoints(img, False)
+        nose, chin, le, re, me, mouth = usefulPoints(img, False)
         nArray += np.array(nose)
         cArray += np.array(chin)
         lArray += np.array(le)
         rArray += np.array(re)
         mArray += np.array(me)
+        mouthArray += np.array(mouth)
     nArray = nArray / (1.0 * n)
     cArray = cArray / (1.0 * n)
     lArray = lArray / (1.0 * n)
     rArray = rArray / (1.0 * n)
     mArray = mArray / (1.0 * n)
+    mouthArray = mouthArray / (1.0 * n)
     LEFT_EYE_POS = tuple(lArray)
     EYES_SPACE = dist(tuple(lArray), tuple(rArray))
     FACE_HEIGHT = dist(tuple(mArray), tuple(cArray))
-    print LEFT_EYE_POS, EYES_SPACE, FACE_HEIGHT
+    FACE_HEIGHT2 = dist(tuple(mArray), tuple(mouthArray))
+    print LEFT_EYE_POS, EYES_SPACE, FACE_HEIGHT, FACE_HEIGHT2
 
 # im="../photomoi.jpg"
 # im="../LFW_verybig/Bill_Clinton/Bill_Clinton_0019.jpg"

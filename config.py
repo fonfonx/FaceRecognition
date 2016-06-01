@@ -11,7 +11,8 @@ CASCADE_PATH="/home/xavier/opencv/opencv-2.4.10/data/haarcascades/haarcascade_fr
 # constants for face alignment
 LEFT_EYE_POS = (6, 6)
 EYES_SPACE = 18
-FACE_HEIGHT = 26  # from nose to chin
+FACE_HEIGHT = 26  # from eyes to chin
+EYE_MOUTH = 15.5
 HEIGHT = 26
 WIDTH = 30
 

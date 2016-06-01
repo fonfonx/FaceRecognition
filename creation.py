@@ -48,11 +48,11 @@ def createDicosFromDirectory_fixed(repo, trainSize, testSize):
     directories = sorted(listdir(repo))
     label=0
     for d in directories:
-        nb_img=0
-        i=0
         images = sorted(listdir(repo + d))
         shuffle(images)
         if len(images)>=trainSize+testSize:
+            nb_img = 0
+            i = 0
             while nb_img < trainSize+testSize and i<len(images):
                 pathImage = repo + d + "/" + images[i]
                 i+=1
@@ -66,9 +66,9 @@ def createDicosFromDirectory_fixed(repo, trainSize, testSize):
                     print "error image "+pathImage
             if nb_img<trainSize+testSize:
                 print "removing "+d
-                if nb_img<trainSize:
+                if nb_img<=trainSize and nb_img>0:
                     del trainImages[-nb_img:]
-                else:
+                elif nb_img>0:
                     del trainImages[-trainSize:]
                     del testImages[-(nb_img-trainSize):]
             else:
