@@ -157,8 +157,6 @@ def test_class(man, nbr, nbMen):
             pathImage = database + nomImage
             y = columnFromImage(pathImage)
             classif = RSC_identif(dico, y)
-            if nbr>=11:
-                classif+=1
             print "Class " + str(nbr) + " identified as " + str(classif)  # +" "+str(classif2)
             if classif == nbr:
                 good += 1
@@ -172,8 +170,6 @@ def test_class(man, nbr, nbMen):
             pathImage = database + nomImage
             y = columnFromImage(pathImage)
             classif = RSC_identif(dico, y)
-            if nbr>=6:
-                classif+=1
             print "Class " + str(nbr + nbMen) + " identified as " + str(classif)  # +" "+str(classif2)
             if classif == nbMen + nbr:
                 good += 1
@@ -187,17 +183,15 @@ def test_recognizer():
     tot = 0
     good = 0
     for i in range(1, nbMen + 2,1):
-        if i!=11:
-            tot_int, good_int = test_class(True, i, nbMen)
-            tot += tot_int
-            good += good_int
+        tot_int, good_int = test_class(True, i, nbMen)
+        tot += tot_int
+        good += good_int
     errors_men=tot-good
     print "errors men",errors_men
     for i in range(1, nbWomen + 2,1):
-        if i!=6:
-            tot_int, good_int = test_class(False, i, nbMen)
-            tot += tot_int
-            good += good_int
+        tot_int, good_int = test_class(False, i, nbMen)
+        tot += tot_int
+        good += good_int
     errors_women=tot-good-errors_men
     print "errors women",errors_women
     rate = good * 1.0 / (tot * 1.0)
@@ -232,9 +226,11 @@ def main(version):
         dico_norm = normalizeMatrix(dico)
         test_recognizer()
     if version=='other':
-        db = ATT_DB
+        db = database
         percent = 1.0
-        dico, testSet, classNum, nbFaces, nbFacesTest = createDicosFromDirectory(db, 0.5, percent)
+        #dico, testSet, classNum, nbFaces, nbFacesTest = createDicosFromDirectory(db, 0.5, percent)
+        dico,labels,nameLabels=createDicoFromDirectory("../AR_DB_train/")
+        testSet, labelstest, nameLabelstest=createDicoFromDirectory("../AR_DB_test/")
         reductor = PCA_reductor(dico, nbDim)
         mean = mean_sample(dico)
         dico_norm = normalizeMatrix(dico)
@@ -281,5 +277,5 @@ rel_tol = 0.001
 eta = 1.0
 silence = True
 
-version='AR'
+version='other'
 main(version)
