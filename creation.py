@@ -197,26 +197,28 @@ def createTrainingDico(nbFaces, database):
     nbMen = 50
     nbWomen = 50
     listImages = []
-    for i in range(1, nbMen + 1):
-        for j in range(1, nbFaces + 1):
-            # nomImage = "M-" + fillStringNumber(i, 3) + "-" + fillStringNumber(j, 2) + ".bmp"
-            nomImage = "m-" + fillStringNumber(i, 3) + "-" + str(j) + ".bmp"
-            pathImage = database + nomImage
-            try:
-                listImages.append(columnFromImage(pathImage))
-            except (cv2.error, TypeError) as e:
-                print "error image " + pathImage
-                listImages.append(listImages[7*(i-1)+j-2])
-    for i in range(1, nbWomen + 1):
-        for j in range(1, nbFaces + 1):
-            # nomImage = "W-" + fillStringNumber(i, 3) + "-" + fillStringNumber(j, 2) + ".bmp"
-            nomImage = "w-" + fillStringNumber(i, 3) + "-" + str(j) + ".bmp"
-            pathImage = database + nomImage
-            try:
-                listImages.append(columnFromImage(pathImage))
-            except (cv2.error, TypeError) as e:
-                print "error image " + pathImage
-                listImages.append(listImages[50*7+7 * (i - 1) + j - 2])
+    for i in range(1, nbMen + 2):
+        if i!=11:
+            for j in range(1, nbFaces + 1):
+                # nomImage = "M-" + fillStringNumber(i, 3) + "-" + fillStringNumber(j, 2) + ".bmp"
+                nomImage = "m-" + fillStringNumber(i, 3) + "-" + str(j) + ".bmp"
+                pathImage = database + nomImage
+                try:
+                    listImages.append(columnFromImage(pathImage))
+                except (cv2.error, TypeError) as e:
+                    print "error image " + pathImage
+                    listImages.append(listImages[7*(i-1)+j-2])
+    for i in range(1, nbWomen + 2):
+        if i!=6:
+            for j in range(1, nbFaces + 1):
+                # nomImage = "W-" + fillStringNumber(i, 3) + "-" + fillStringNumber(j, 2) + ".bmp"
+                nomImage = "w-" + fillStringNumber(i, 3) + "-" + str(j) + ".bmp"
+                pathImage = database + nomImage
+                try:
+                    listImages.append(columnFromImage(pathImage))
+                except (cv2.error, TypeError) as e:
+                    print "error image " + pathImage
+                    listImages.append(listImages[50*7+7 * (i - 1) + j - 2])
     print "Creation of dictionary done"
     dico = (np.column_stack(listImages)).astype(float)
     return dico
