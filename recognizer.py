@@ -157,6 +157,8 @@ def test_class(man, nbr, nbMen):
             pathImage = database + nomImage
             y = columnFromImage(pathImage)
             classif = RSC_identif(dico, y)
+            if nbr>=11:
+                classif+=1
             print "Class " + str(nbr) + " identified as " + str(classif)  # +" "+str(classif2)
             if classif == nbr:
                 good += 1
@@ -170,6 +172,8 @@ def test_class(man, nbr, nbMen):
             pathImage = database + nomImage
             y = columnFromImage(pathImage)
             classif = RSC_identif(dico, y)
+            if nbr>=6:
+                classif+=1
             print "Class " + str(nbr + nbMen) + " identified as " + str(classif)  # +" "+str(classif2)
             if classif == nbMen + nbr:
                 good += 1

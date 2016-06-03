@@ -207,7 +207,7 @@ def createTrainingDico(nbFaces, database):
                     listImages.append(columnFromImage(pathImage))
                 except (cv2.error, TypeError) as e:
                     print "error image " + pathImage
-                    listImages.append(listImages[7*(i-1)+j-2])
+                    listImages.append(listImages[-1])
     for i in range(1, nbWomen + 2):
         if i!=6:
             for j in range(1, nbFaces + 1):
@@ -218,7 +218,7 @@ def createTrainingDico(nbFaces, database):
                     listImages.append(columnFromImage(pathImage))
                 except (cv2.error, TypeError) as e:
                     print "error image " + pathImage
-                    listImages.append(listImages[50*7+7 * (i - 1) + j - 2])
+                    listImages.append(listImages[-1])
     print "Creation of dictionary done"
     dico = (np.column_stack(listImages)).astype(float)
     return dico
