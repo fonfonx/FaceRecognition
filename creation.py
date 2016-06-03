@@ -103,7 +103,7 @@ def createDicoFromDirectory(repo):
                 imagesLabels.append(label)
     dico=(np.column_stack(imagesArray)).astype(float)
     print "dico created!"
-    return dico, imagesLabels, nameLabels
+    return dico, imagesLabels, nameLabels, label
 
 
 

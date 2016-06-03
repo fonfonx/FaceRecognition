@@ -229,8 +229,10 @@ def main(version):
         db = database
         percent = 1.0
         #dico, testSet, classNum, nbFaces, nbFacesTest = createDicosFromDirectory(db, 0.5, percent)
-        dico,labels,nameLabels=createDicoFromDirectory("../AR_DB_train/")
-        testSet, labelstest, nameLabelstest=createDicoFromDirectory("../AR_DB_test/")
+        dico,labels,nameLabels, classNum=createDicoFromDirectory("../AR_DB_train/")
+        testSet, labelstest, nameLabelstest, c=createDicoFromDirectory("../AR_DB_test/")
+        nbFaces=7
+        nbFacesTest=7
         reductor = PCA_reductor(dico, nbDim)
         mean = mean_sample(dico)
         dico_norm = normalizeMatrix(dico)
