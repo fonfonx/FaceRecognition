@@ -34,5 +34,5 @@ def powerMatDiagSqrt(mat):
 
 # dimensionality reduction
 def dimReduct(matrix, reductor):
-    return reductor.transpose().dot(matrix)
-    # return matrix
+    # return reductor.transpose().dot(matrix)
+    return matrix

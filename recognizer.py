@@ -152,8 +152,8 @@ def test_class(man, nbr, nbMen):
         for j in range(nbFaces):
             k = 14 + j
             #k=8+j
-            nomImage = "M-" + fillStringNumber(nbr, 3) + "-" + fillStringNumber(k, 2) + ".bmp"
-            # nomImage = "M-" + fillStringNumber(nbr, 3) + "-" + str(k) + ".bmp"
+            # nomImage = "M-" + fillStringNumber(nbr, 3) + "-" + fillStringNumber(k, 2) + ".bmp"
+            nomImage = "m-" + fillStringNumber(nbr, 3) + "-" + str(k) + ".bmp"
             pathImage = database + nomImage
             y = columnFromImage(pathImage)
             classif = RSC_identif(dico, y)
@@ -165,8 +165,8 @@ def test_class(man, nbr, nbMen):
         for j in range(nbFaces):
             k = 14 + j
             #k=8+j
-            nomImage = "W-" + fillStringNumber(nbr, 3) + "-" + fillStringNumber(k, 2) + ".bmp"
-            # nomImage = "W-" + fillStringNumber(nbr, 3) + "-" + str(k) + ".bmp"
+            # nomImage = "W-" + fillStringNumber(nbr, 3) + "-" + fillStringNumber(k, 2) + ".bmp"
+            nomImage = "w-" + fillStringNumber(nbr, 3) + "-" + str(k) + ".bmp"
             pathImage = database + nomImage
             y = columnFromImage(pathImage)
             classif = RSC_identif(dico, y)
@@ -262,6 +262,7 @@ def main(version):
 
 # database = "../AR_crop/"
 database = "../AR_matlab/"
+database = "../AR_DB/"
 ATT_DB = "../../databases/ATT/"
 Yale_DB = "../../databases/CroppedYale/"
 
@@ -274,5 +275,5 @@ rel_tol = 0.001
 eta = 1.0
 silence = True
 
-version='lfw'
+version='AR'
 main(version)

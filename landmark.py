@@ -9,7 +9,6 @@ cascade = cv2.CascadeClassifier(cascade_path)
 
 def get_landmarks(im):
     rects = cascade.detectMultiScale(im, 1.2,5)
-    rects=rects[np.argsort(rects[:,3])[::-1]]
     print len(rects)
     print rects
     if len(rects)==0:
@@ -17,6 +16,7 @@ def get_landmarks(im):
         y=0
         w,h=im.shape[:2]
     else:
+        rects = rects[np.argsort(rects[:, 3])[::-1]]
         x,y,w,h =rects[0].astype(long)
     rect=dlib.rectangle(x,y,x+w,y+h)
     return np.matrix([[p.x, p.y] for p in predictor(im, rect).parts()])
@@ -46,13 +46,15 @@ def test(im):
 
 #im=cv2.imread('../LFW_big_train_resized/Abdullah_Gul/1Abdullah_Gul_0001.jpg')
 #im=cv2.imread('../AR_matlab/M-001-01.bmp')
-im=cv2.imread('../photomoi.jpg')
+#im=cv2.imread('../photomoi.jpg')
+#im=cv2.imread('../LFW_verybig/John_Paul_II/John_Paul_II_0005.jpg')
+im=cv2.imread('../AR_DB/m-001-1.bmp')
 #im=cv2.imread('gul1step.jpg')
 #im=cv2.imread('../tete2.png')
 #im=cv2.imread('testgulechec.jpg')
 #im=cv2.imread('../LFW_verybig/Abdullah_Gul/Abdullah_Gul_0010.jpg')
 #im=cv2.imread('../LFW_verybig/Amelie_Mauresmo/Amelie_Mauresmo_0008.jpg')
-#im = cv2.resize(im, None, fx=2.0, fy=2.0, interpolation=cv2.INTER_CUBIC)
+#im = cv2.resize(im, None, fx=4.0, fy=4.0, interpolation=cv2.INTER_CUBIC)
 cv2.imshow('Result',annotate_landmarks(im,get_landmarks(im)))
 #cv2.imshow('Result',annotate_landmarks(im,test(im)))
 cv2.waitKey(0)

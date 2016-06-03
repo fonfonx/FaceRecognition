@@ -199,14 +199,14 @@ def createTrainingDico(nbFaces, database):
     listImages = []
     for i in range(1, nbMen + 1):
         for j in range(1, nbFaces + 1):
-            nomImage = "M-" + fillStringNumber(i, 3) + "-" + fillStringNumber(j, 2) + ".bmp"
-            # nomImage = "M-" + fillStringNumber(i, 3) + "-" + str(j) + ".bmp"
+            # nomImage = "M-" + fillStringNumber(i, 3) + "-" + fillStringNumber(j, 2) + ".bmp"
+            nomImage = "m-" + fillStringNumber(i, 3) + "-" + str(j) + ".bmp"
             pathImage = database + nomImage
             listImages.append(columnFromImage(pathImage))
     for i in range(1, nbWomen + 1):
         for j in range(1, nbFaces + 1):
-            nomImage = "W-" + fillStringNumber(i, 3) + "-" + fillStringNumber(j, 2) + ".bmp"
-            # nomImage = "W-" + fillStringNumber(i, 3) + "-" + str(j) + ".bmp"
+            # nomImage = "W-" + fillStringNumber(i, 3) + "-" + fillStringNumber(j, 2) + ".bmp"
+            nomImage = "w-" + fillStringNumber(i, 3) + "-" + str(j) + ".bmp"
             pathImage = database + nomImage
             listImages.append(columnFromImage(pathImage))
     print "Creation of dictionary done"
