@@ -24,11 +24,13 @@ def columnFromImage(img):
     print img
     im=cv2.imread(img)
 
-    im=preprocess(im,imref)
+    #im=preprocess(im,imref)
 
-    # cv2.imshow("al",im)
-    # cv2.waitKey()
-    # cv2.destroyAllWindows()
+    im=im[50:460,220:580]
+
+    cv2.imshow("al",im)
+    cv2.waitKey()
+    cv2.destroyAllWindows()
 
     #im=im.astype(float)
     #im=preprocessing(im)
