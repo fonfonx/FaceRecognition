@@ -12,7 +12,7 @@ import random
 from random import shuffle
 
 from preprocessing import *
-from alignment import align, dist, meshAlign, preprocess, landmarks
+from alignment import align, dist, meshAlign, preprocess, landmarks, detectFace
 from config import *
 
 
@@ -26,9 +26,17 @@ def columnFromImage(img):
 
     #im=preprocess(im,imref)
 
-    im=im[50:460,220:580]
+    im=detectFace(im)
 
-    cv2.imshow("al",im)
+
+    # cv2.imshow("al",im)
+    # cv2.waitKey()
+    # cv2.destroyAllWindows()
+
+    #im = cv2.resize(im, None, fx=0.2, fy=0.2, interpolation=cv2.INTER_CUBIC)
+    im=cv2.resize(im,(50,50),interpolation=cv2.INTER_CUBIC)
+
+    cv2.imshow("al", im)
     cv2.waitKey()
     cv2.destroyAllWindows()
 
@@ -201,20 +209,20 @@ def createTrainingDico(nbFaces, database):
     nbMen = 50
     nbWomen = 50
     listImages = []
-    for i in range(1, nbMen + 2):
+    for i in range(1, nbMen + 1):
         for j in range(1, nbFaces + 1):
-            # nomImage = "M-" + fillStringNumber(i, 3) + "-" + fillStringNumber(j, 2) + ".bmp"
-            nomImage = "m-" + fillStringNumber(i, 3) + "-" + str(j) + ".bmp"
+            nomImage = "M-" + fillStringNumber(i, 3) + "-" + fillStringNumber(j, 2) + ".bmp"
+            #nomImage = "m-" + fillStringNumber(i, 3) + "-" + str(j) + ".bmp"
             pathImage = database + nomImage
             try:
                 listImages.append(columnFromImage(pathImage))
             except (cv2.error, TypeError) as e:
                 print "error image " + pathImage
                 listImages.append(listImages[-1])
-    for i in range(1, nbWomen + 2):
+    for i in range(1, nbWomen + 1):
         for j in range(1, nbFaces + 1):
-            # nomImage = "W-" + fillStringNumber(i, 3) + "-" + fillStringNumber(j, 2) + ".bmp"
-            nomImage = "w-" + fillStringNumber(i, 3) + "-" + str(j) + ".bmp"
+            nomImage = "W-" + fillStringNumber(i, 3) + "-" + fillStringNumber(j, 2) + ".bmp"
+            #nomImage = "w-" + fillStringNumber(i, 3) + "-" + str(j) + ".bmp"
             pathImage = database + nomImage
             try:
                 listImages.append(columnFromImage(pathImage))

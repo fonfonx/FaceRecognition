@@ -37,6 +37,12 @@ def landmarks(img, detectface):
         rect = dlib.rectangle(0, 0, h, w)
     return np.array([(p.x, p.y) for p in predictor(img, rect).parts()])
 
+def detectFace(img):
+    rects = cascade.detectMultiScale(img, 1.3, 5)
+    rects = rects[np.argsort(rects[:, 3])[::-1]]
+    x,y,w,h=rects[0]
+    return img[y:y+h,x:x+w]
+
 
 ########################################################################################################################
 ######################################### MANUAL ALIGNMENT #############################################################

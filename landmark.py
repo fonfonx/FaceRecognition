@@ -45,10 +45,10 @@ def test(im):
 
 
 #im=cv2.imread('../LFW_big_train_resized/Abdullah_Gul/1Abdullah_Gul_0001.jpg')
-#im=cv2.imread('../AR_matlab/M-001-01.bmp')
+im=cv2.imread('../AR_matlab/M-001-01.bmp')
 #im=cv2.imread('../photomoi.jpg')
 #im=cv2.imread('../LFW_verybig/John_Paul_II/John_Paul_II_0005.jpg')
-im=cv2.imread('../AR_DB/m-011-5.bmp')
+#im=cv2.imread('../AR_DB/m-011-5.bmp')
 #im=cv2.imread('../AR_matlab/M-011-17.bmp')
 #im=cv2.imread('gul1step.jpg')
 #im=cv2.imread('../tete2.png')

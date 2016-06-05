@@ -152,8 +152,8 @@ def test_class(man, nbr, nbMen):
         for j in range(nbFaces):
             k = 14 + j
             #k=8+j
-            # nomImage = "M-" + fillStringNumber(nbr, 3) + "-" + fillStringNumber(k, 2) + ".bmp"
-            nomImage = "m-" + fillStringNumber(nbr, 3) + "-" + str(k) + ".bmp"
+            nomImage = "M-" + fillStringNumber(nbr, 3) + "-" + fillStringNumber(k, 2) + ".bmp"
+            # nomImage = "m-" + fillStringNumber(nbr, 3) + "-" + str(k) + ".bmp"
             pathImage = database + nomImage
             y = columnFromImage(pathImage)
             classif = RSC_identif(dico, y)
@@ -165,8 +165,8 @@ def test_class(man, nbr, nbMen):
         for j in range(nbFaces):
             k = 14 + j
             #k=8+j
-            # nomImage = "W-" + fillStringNumber(nbr, 3) + "-" + fillStringNumber(k, 2) + ".bmp"
-            nomImage = "w-" + fillStringNumber(nbr, 3) + "-" + str(k) + ".bmp"
+            nomImage = "W-" + fillStringNumber(nbr, 3) + "-" + fillStringNumber(k, 2) + ".bmp"
+            # nomImage = "w-" + fillStringNumber(nbr, 3) + "-" + str(k) + ".bmp"
             pathImage = database + nomImage
             y = columnFromImage(pathImage)
             classif = RSC_identif(dico, y)
@@ -182,13 +182,13 @@ def test_recognizer():
     nbWomen = 50
     tot = 0
     good = 0
-    for i in range(1, nbMen + 2,1):
+    for i in range(1, nbMen + 1,1):
         tot_int, good_int = test_class(True, i, nbMen)
         tot += tot_int
         good += good_int
     errors_men=tot-good
     print "errors men",errors_men
-    for i in range(1, nbWomen + 2,1):
+    for i in range(1, nbWomen + 1,1):
         tot_int, good_int = test_class(False, i, nbMen)
         tot += tot_int
         good += good_int
