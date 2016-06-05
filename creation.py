@@ -24,9 +24,9 @@ def columnFromImage(img):
     print img
     im=cv2.imread(img)
 
-    #im=preprocess(im,imref)
+    im=preprocess(im,imref)
 
-    im=detectFace(im)
+    #im=detectFace(im)
 
 
     # cv2.imshow("al",im)
@@ -34,11 +34,7 @@ def columnFromImage(img):
     # cv2.destroyAllWindows()
 
     #im = cv2.resize(im, None, fx=0.2, fy=0.2, interpolation=cv2.INTER_CUBIC)
-    im=cv2.resize(im,(50,50),interpolation=cv2.INTER_CUBIC)
-
-    cv2.imshow("al", im)
-    cv2.waitKey()
-    cv2.destroyAllWindows()
+    #im=cv2.resize(im,(30,30),interpolation=cv2.INTER_CUBIC)
 
     #im=im.astype(float)
     #im=preprocessing(im)

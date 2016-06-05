@@ -89,7 +89,7 @@ def toDiag(before_exp):
             rep[i] = 1.0 / (1.0 + exp(before_exp[i]))
         else:
             rep[i] = 0.0
-        #rep[i]=sqrt(rep[i])
+        rep[i]=sqrt(rep[i])
     return rep
 
 
@@ -229,8 +229,9 @@ def main(version):
         db = database
         percent = 1.0
         #dico, testSet, classNum, nbFaces, nbFacesTest = createDicosFromDirectory(db, 0.5, percent)
+
         dico,labels,nameLabels, classNum=createDicoFromDirectory("../AR_DB_train/")
-        testSet, labelstest, nameLabelstest, c=createDicoFromDirectory("../AR_DB_test/")
+        testSet, labelstest, nameLabelstest, c = createDicoFromDirectory("../AR_DB_test/")
         nbFaces=7
         nbFacesTest=7
         reductor = PCA_reductor(dico, nbDim)
@@ -279,5 +280,5 @@ rel_tol = 0.001
 eta = 1.0
 silence = True
 
-version='other'
+version='lfw'
 main(version)
