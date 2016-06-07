@@ -90,10 +90,11 @@ def align(img):
     img_rot = rotate(img, theta * 180.0 / pi, le)
     # resizing
     eye_space = dist(le, re)
-    #face_height = dist(chin, me)
-    eye_mouth=dist(me,mouth)
+    face_height = dist(chin, me)
+    #eye_mouth=dist(me,mouth)
     x_factor = EYES_SPACE / eye_space
-    y_factor = EYE_MOUTH / eye_mouth
+    #y_factor = EYE_MOUTH / eye_mouth
+    y_factor = FACE_HEIGHT / face_height
     factor = (x_factor + y_factor) / 2.0
     img_res = cv2.resize(img_rot, None, fx=x_factor, fy=y_factor, interpolation=cv2.INTER_CUBIC)
 
@@ -101,7 +102,7 @@ def align(img):
     img = img_res
 
     # translation
-    # nose, chin, le, re, me = usefulPoints(img,True)
+    # nose, chin, le, re, me, mouth = usefulPoints(img,False)
     # detection does not always work
     # we compute le manually
     le = (le[0] * x_factor, le[1] * y_factor)
@@ -130,7 +131,7 @@ def align(img):
 # --> return all the points that will be used for the triangulation and the coordinates of the rectangle around the face
 def processImage(img):
     # landmark extraction
-    lm = landmarks(img, True)
+    lm = landmarks(img, True) # change if not LFW
     # rectangle around face
     ymax = lm[8][1]
     xmin = lm[0][0]
@@ -165,6 +166,12 @@ def delaunayTriangulation(points):
     # plt.show()
     return tri.simplices
 
+def boundingRect(triangle,xmax,ymax):
+    x=floor(np.amin(triangle[:,0]))
+    y=floor(np.amin(triangle[:,1]))
+    xx=min(xmax,ceil(np.amax(triangle[:,0])))
+    yy=min(ymax,ceil(np.amax(triangle[:,1])))
+    return (int(x),int(y),int(xx-x),int(yy-y))
 
 # base_points: coordinates of the landmark points of reference image
 # triangulation: Delaunay triangulation of the base points
@@ -178,6 +185,9 @@ def warpImage(img, triangulation, base_points, coord):
         # bounding boxes
         src_rect = cv2.boundingRect(np.array([src_tri]))
         dest_rect = cv2.boundingRect(np.array([dest_tri]))
+        #src_rect=boundingRect(src_tri)
+        #dest_rect=boundingRect(dest_tri)
+
         # crop images
         src_crop_tri = np.zeros((3, 2), dtype=np.float32)
         dest_crop_tri = np.zeros((3, 2))
@@ -190,6 +200,7 @@ def warpImage(img, triangulation, base_points, coord):
         mat = cv2.getAffineTransform(np.float32(src_crop_tri), np.float32(dest_crop_tri))
         dest_crop_img = cv2.warpAffine(src_crop_img, mat, (dest_rect[2], dest_rect[3]), None, flags=cv2.INTER_LINEAR,
                                        borderMode=cv2.BORDER_REFLECT_101)
+
         # use a mask to keep only the triangle pixels
         # Get mask by filling triangle
         mask = np.zeros((dest_rect[3], dest_rect[2], 3), dtype=np.float32)
@@ -205,6 +216,7 @@ def warpImage(img, triangulation, base_points, coord):
 
         img_out[dest_rect[1]:dest_rect[1] + dest_rect[3], dest_rect[0]:dest_rect[0] + dest_rect[2]] = \
             img_out[dest_rect[1]:dest_rect[1] + dest_rect[3], dest_rect[0]:dest_rect[0] + dest_rect[2]] + dest_crop_img
+
     return img_out[coord[2]:coord[3], coord[0]:coord[1]]
 
 
@@ -268,19 +280,21 @@ def initializeParameters(repo):
     FACE_HEIGHT2 = dist(tuple(mArray), tuple(mouthArray))
     print LEFT_EYE_POS, EYES_SPACE, FACE_HEIGHT, FACE_HEIGHT2
 
-# im="../photomoi.jpg"
-# im="../LFW_verybig/Bill_Clinton/Bill_Clinton_0019.jpg"
-# im="testgulechec.jpg"
-# im='../tete.jpg'
-# im2="../LFW_verybig/Bill_Clinton/Bill_Clinton_0002.jpg"
+# # im="../photomoi.jpg"
+# im="../LFW_verybig/Bill_Clinton/Bill_Clinton_0018.jpg"
+# # im="testgulechec.jpg"
+# # im='../tete.jpg'
+# # im2="../LFW_verybig/Bill_Clinton/Bill_Clinton_0002.jpg"
+# im2="../tete4.jpg"
 # img=cv2.imread(im)
 # img2=cv2.imread(im2)
-# align(img)
-# repo="../AR_matlab/"
-# initializeParameters(repo)
-# bp,coord=processImage(img)
-# tr=delaunayTriangulation(bp)
-# img_out=warpImage(img2,tr,bp,coord)
-# cv2.imshow("wrap",img_out)
+# # align(img)
+# # repo="../AR_matlab/"
+# # initializeParameters(repo)
+# # bp,coord=processImage(img)
+# # tr=delaunayTriangulation(bp)
+# # img_out=warpImage(img2,tr,bp,coord)
+# im_w=meshAlign(img,img2)
+# cv2.imshow("wrap",im_w)
 # cv2.waitKey()
 # cv2.destroyAllWindows()

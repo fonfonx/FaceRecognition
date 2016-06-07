@@ -17,6 +17,7 @@ from config import *
 
 
 imref=cv2.imread("../tete3.jpg")
+#imref=cv2.imread("../../databases/ATT/s1/9.pgm")
 #imref=cv2.imread("../AR_matlab/M-001-01.bmp")
 
 
@@ -56,7 +57,7 @@ def createDicosFromDirectory_fixed(repo, trainSize, testSize):
     for d in directories:
         images = sorted(listdir(repo + d))
         shuffle(images)
-        if len(images)>=trainSize+testSize:
+        if len(images)>=10:#trainSize+testSize:
             nb_img = 0
             i = 0
             while nb_img < trainSize+testSize and i<len(images):

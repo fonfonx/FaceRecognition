@@ -228,10 +228,10 @@ def main(version):
     if version=='other':
         db = database
         percent = 1.0
-        #dico, testSet, classNum, nbFaces, nbFacesTest = createDicosFromDirectory(db, 0.5, percent)
+        dico, testSet, classNum, nbFaces, nbFacesTest = createDicosFromDirectory(db, 0.5, percent)
 
-        dico,labels,nameLabels, classNum=createDicoFromDirectory("../AR_DB_train/")
-        testSet, labelstest, nameLabelstest, c = createDicoFromDirectory("../AR_DB_test/")
+        #dico,labels,nameLabels, classNum=createDicoFromDirectory("../AR_DB_train/")
+        #testSet, labelstest, nameLabelstest, c = createDicoFromDirectory("../AR_DB_test/")
         nbFaces=7
         nbFacesTest=7
         reductor = PCA_reductor(dico, nbDim)
@@ -254,8 +254,8 @@ def main(version):
         #repo="../LFW_big_train_resized/"
         #repo="../LFW_verybig/"
         repo="../LFW/"
-        nbFaces = 7
-        nbFacesTest = 3
+        nbFaces = 2
+        nbFacesTest = 2
         dico,testSet, classNum, nameLabels=createDicosFromDirectory_fixed(repo,nbFaces,nbFacesTest)
         reductor = PCA_reductor(dico, nbDim)
         mean = mean_sample(dico)
@@ -270,6 +270,7 @@ database = "../AR_matlab/"
 database = "../AR_DB/"
 ATT_DB = "../../databases/ATT/"
 Yale_DB = "../../databases/CroppedYale/"
+database=ATT_DB
 
 nbDim = 120
 nbIter = 2
