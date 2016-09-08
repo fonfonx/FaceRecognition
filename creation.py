@@ -15,8 +15,9 @@ from preprocessing import *
 from alignment import align, dist, meshAlign, preprocess, landmarks, detectFace
 from config import *
 
-
-imref=cv2.imread("../tete3.jpg")
+imref=cv2.imread("../tete6.jpg")
+#imref=cv2.imread("../face_avg.jpg")
+#imref=cv2.imread("../tete3_147.jpg")
 #imref=cv2.imread("../../databases/ATT/s1/9.pgm")
 #imref=cv2.imread("../AR_matlab/M-001-01.bmp")
 
@@ -69,8 +70,8 @@ def createDicosFromDirectory_fixed(repo, trainSize, testSize):
                     else:
                         testImages.append(columnFromImage(pathImage))
                     nb_img+=1
-                except (cv2.error,TypeError) as e:
-                    print "error image "+pathImage
+                except (cv2.error,TypeError, ValueError) as e:
+                    print "error image "+pathImage+" "+str(e)
             if nb_img<trainSize+testSize:
                 print "removing "+d
                 if nb_img<=trainSize and nb_img>0:
@@ -104,7 +105,7 @@ def createDicoFromDirectory(repo):
             try:
                 imagesArray.append(columnFromImage(pathImage))
                 imagesLabels.append(label)
-            except (cv2.error,TypeError) as e:
+            except (cv2.error,TypeError, ValueError) as e:
                 print "exception for image "+image
                 imagesArray.append(imagesArray[-1])
                 imagesLabels.append(label)

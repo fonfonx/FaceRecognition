@@ -81,7 +81,7 @@ def translation(img, vec):
 
 # manual align function
 def align(img):
-    nose, chin, le, re, me, mouth = usefulPoints(img, False)
+    nose, chin, le, re, me, mouth = usefulPoints(img, True) #should be false except for myface
 
     # 1st step
     # rotation around left eye
@@ -97,9 +97,15 @@ def align(img):
     y_factor = FACE_HEIGHT / face_height
     factor = (x_factor + y_factor) / 2.0
     img_res = cv2.resize(img_rot, None, fx=x_factor, fy=y_factor, interpolation=cv2.INTER_CUBIC)
-
+    cv2.imwrite("me_rot.jpg",img_res)
     # 2nd step
     img = img_res
+
+    ### in order to print/save intermediate result
+    cv2.imshow("inter",img_res)
+    cv2.waitKey()
+    cv2.destroyAllWindows()
+    cv2.imwrite("me_rot.jpg",img_res)
 
     # translation
     # nose, chin, le, re, me, mouth = usefulPoints(img,False)
@@ -111,7 +117,7 @@ def align(img):
     # crop
     crop_img = img_t[0:HEIGHT, 0:WIDTH]
     img = crop_img
-
+    cv2.imwrite("me_crop.jpg",crop_img)
     # 3rd step: verification
     # img= cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     # nose, chin, le, re, me = usefulPoints(img, False)
@@ -131,7 +137,7 @@ def align(img):
 # --> return all the points that will be used for the triangulation and the coordinates of the rectangle around the face
 def processImage(img):
     # landmark extraction
-    lm = landmarks(img, True) # change if not LFW
+    lm = landmarks(img, True) # change if not LFW (True for LFW)
     # rectangle around face
     ymax = lm[8][1]
     xmin = lm[0][0]
@@ -145,7 +151,7 @@ def processImage(img):
     ymin_rect = int(ymin - epsilon * yr)
     ymax_rect = int(ymax + epsilon * yr)
     coord = (xmin_rect, xmax_rect, ymin_rect, ymax_rect)
-    # new landmarks (on the rectange sides)
+    # new landmarks (on the rectangle sides)
     top_points = np.array([[x, ymin_rect] for x in np.linspace(xmin_rect, xmax_rect, 15)])
     bottom_points = np.array([[x, ymax_rect] for x in np.linspace(xmin_rect, xmax_rect, 20)])
     side_points = np.linspace(int(ymin_rect + yr * 1.1 / 12.0), int(ymax_rect - yr * 1.1 / 12.0), 11)
@@ -280,21 +286,71 @@ def initializeParameters(repo):
     FACE_HEIGHT2 = dist(tuple(mArray), tuple(mouthArray))
     print LEFT_EYE_POS, EYES_SPACE, FACE_HEIGHT, FACE_HEIGHT2
 
-# # im="../photomoi.jpg"
-# im="../LFW_verybig/Bill_Clinton/Bill_Clinton_0018.jpg"
-# # im="testgulechec.jpg"
-# # im='../tete.jpg'
-# # im2="../LFW_verybig/Bill_Clinton/Bill_Clinton_0002.jpg"
-# im2="../tete4.jpg"
+def draw_triangulation(im, tri, bp):
+    img = im.copy()
+    for t in tri:
+        n1=t[0]
+        n2=t[1]
+        n3=t[2]
+        pt1=(int(bp[n1][0]),int(bp[n1][1]))
+        pt2 = (int(bp[n2][0]), int(bp[n2][1]))
+        pt3 = (int(bp[n3][0]), int(bp[n3][1]))
+        cv2.line(img,pt1,pt2,(0,0,255))
+        cv2.line(img,pt3,pt2,(0,0,255))
+        cv2.line(img, pt1, pt3, (0, 0, 255))
+    return img
+
+### print/save my photo cropped
+im="../photomoi.jpg"
+img = cv2.imread(im)
+img_align=align(img)
+cv2.imshow("align",img_align)
+cv2.waitKey()
+cv2.destroyAllWindows()
+cv2.imwrite("me_crop.jpg",img_align)
+# im="../federer.jpg"
+# ## im="../LFW_verybig/David_Beckham/David_Beckham_0009.jpg"
+# #im="../LFW_verybig/Gordon_Brown/Gordon_Brown_0009.jpg"
+# #im="../LFW_verybig/Recep_Tayyip_Erdogan/Recep_Tayyip_Erdogan_0002.jpg"
+# #im="../LFW_verybig/Angelina_Jolie/Angelina_Jolie_0009.jpg"
+# # #im="../LFW_verybig/Hillary_Clinton/Hillary_Clinton_0004.jpg"
+# #im="../LFW_verybig/Queen_Elizabeth_II/Queen_Elizabeth_II_0013.jpg"
+# # # im="../LFW_verybig/George_W_Bush/George_W_Bush_0036.jpg"
+# # # im="testgulechec.jpg"
+# # # im='../tete.jpg'
+# # # im2="../LFW_verybig/Bill_Clinton/Bill_Clinton_0002.jpg"
+# im2="../tete6.jpg"
 # img=cv2.imread(im)
 # img2=cv2.imread(im2)
-# # align(img)
-# # repo="../AR_matlab/"
-# # initializeParameters(repo)
-# # bp,coord=processImage(img)
-# # tr=delaunayTriangulation(bp)
-# # img_out=warpImage(img2,tr,bp,coord)
-# im_w=meshAlign(img,img2)
-# cv2.imshow("wrap",im_w)
+# im=meshAlign(img,img2)
+#
+# #cv2.imwrite("federer_warp.jpg",im)
+#
+# cv2.imshow("warp",im)
 # cv2.waitKey()
 # cv2.destroyAllWindows()
+#
+# # # align(img)
+# # # repo="../AR_matlab/"
+# # # initializeParameters(repo)
+# # # bp,coord=processImage(img2)
+# # # tr=delaunayTriangulation(bp)
+# # # img_tri=draw_triangulation(img2, tr, bp)
+# # # cv2.imwrite("meshref.jpg",img_tri)
+# # align(img)
+# #
+# #
+# allpoints, co=processImage(img)
+# bp, coord=processImage(img2)
+# tr=delaunayTriangulation(bp)
+# im_tri=draw_triangulation(img,tr,allpoints)
+# #
+# # # # img_out=warpImage(img2,tr,bp,coord)
+# # # # im_w=preprocess(img,img2)
+# # # #im_w = cv2.resize(im_w, None, fx=2.0, fy=2.0, interpolation=cv2.INTER_CUBIC)
+# #cv2.imwrite("federer_tri.jpg",im_tri)
+# cv2.imshow("wraptri",im_tri)
+# cv2.waitKey()
+# cv2.destroyAllWindows()
+# #cv2.imwrite("bush_mesh_align.jpg",im_w)
+

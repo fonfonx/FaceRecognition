@@ -22,15 +22,20 @@ def faceDetector(image, newName="image", saveFolder="", display=True, save=False
     nbr=0
     minwidth=1000
     for (x,y,w,h) in faces:
+        xx = int(x - 0.4 * w)
+        yy = int(y - 0.4 * h)
+        xf = int(x + 1.4 * w)
+        yf = int(y + 1.4 * h)
         if w<=minwidth:
             minwidth=w
         nbr+=1
-        crop=img[y:y+h, x:x+w]
+        crop_big=img[yy:yf, xx:xf]
         crop_gray=gray[y:y+h, x:x+w]
         if save:
             pathname=saveFolder+"/"+str(nbr)+newName
-            cv2.imwrite(pathname,crop)
+            cv2.imwrite(pathname,crop_big)
         if display:
+            cv2.rectangle(img,(xx,yy),(xf,yf),(0,255,0),2)
             cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
             # eyes = eye_cascade.detectMultiScale(crop_gray)
             # for (ex,ey,ew,eh) in eyes:
@@ -89,4 +94,5 @@ lfw="../LFW_big"
 #preprocessing(g8_images)
 
 im="../LFW_verybig/Abdullah_Gul/Abdullah_Gul_0001.jpg"
-faceDetector(im,"qf","j",True, False)
+im="../g8_crop.jpg"
+faceDetector(im,"politic_big.jpg",".",True, True)
