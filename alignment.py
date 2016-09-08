@@ -81,7 +81,7 @@ def translation(img, vec):
 
 # manual align function
 def align(img):
-    nose, chin, le, re, me, mouth = usefulPoints(img, True) #should be false except for myface
+    nose, chin, le, re, me, mouth = usefulPoints(img, False) #should be false except for myface
 
     # 1st step
     # rotation around left eye
@@ -102,10 +102,10 @@ def align(img):
     img = img_res
 
     ### in order to print/save intermediate result
-    cv2.imshow("inter",img_res)
-    cv2.waitKey()
-    cv2.destroyAllWindows()
-    cv2.imwrite("me_rot.jpg",img_res)
+    # cv2.imshow("inter",img_res)
+    # cv2.waitKey()
+    # cv2.destroyAllWindows()
+    # cv2.imwrite("me_rot.jpg",img_res)
 
     # translation
     # nose, chin, le, re, me, mouth = usefulPoints(img,False)
@@ -301,56 +301,46 @@ def draw_triangulation(im, tri, bp):
     return img
 
 ### print/save my photo cropped
-im="../photomoi.jpg"
-img = cv2.imread(im)
-img_align=align(img)
-cv2.imshow("align",img_align)
-cv2.waitKey()
-cv2.destroyAllWindows()
-cv2.imwrite("me_crop.jpg",img_align)
+# im="../photomoi.jpg"
+# img = cv2.imread(im)
+# img_align=align(img)
+# cv2.imshow("align",img_align)
+# cv2.waitKey()
+# cv2.destroyAllWindows()
+# cv2.imwrite("me_crop.jpg",img_align)
+
+
+### print/save warp image
+# im = "../federer.jpg"
+# imref = "../tete6.jpg"
+# img = cv2.imread(im)
+# img_ref = cv2.imread(imref)
+# img_warp = meshAlign(img, img_ref)
+# cv2.imshow("warp", img_warp)
+# cv2.waitKey()
+# cv2.destroyAllWindows()
+
+### print/save triangulation
+# save image as before
+# allpoints, co = processImage(img)
+# bp, coord=processImage(img_ref)
+# tr = delaunayTriangulation(bp)
+# img_tri = draw_triangulation(img, tr, allpoints)
+# cv2.imshow("tri", img_tri)
+# cv2.waitKey()
+# cv2.destroyAllWindows()
+
+### images to test
 # im="../federer.jpg"
-# ## im="../LFW_verybig/David_Beckham/David_Beckham_0009.jpg"
-# #im="../LFW_verybig/Gordon_Brown/Gordon_Brown_0009.jpg"
-# #im="../LFW_verybig/Recep_Tayyip_Erdogan/Recep_Tayyip_Erdogan_0002.jpg"
-# #im="../LFW_verybig/Angelina_Jolie/Angelina_Jolie_0009.jpg"
-# # #im="../LFW_verybig/Hillary_Clinton/Hillary_Clinton_0004.jpg"
-# #im="../LFW_verybig/Queen_Elizabeth_II/Queen_Elizabeth_II_0013.jpg"
-# # # im="../LFW_verybig/George_W_Bush/George_W_Bush_0036.jpg"
-# # # im="testgulechec.jpg"
-# # # im='../tete.jpg'
-# # # im2="../LFW_verybig/Bill_Clinton/Bill_Clinton_0002.jpg"
-# im2="../tete6.jpg"
-# img=cv2.imread(im)
-# img2=cv2.imread(im2)
-# im=meshAlign(img,img2)
-#
-# #cv2.imwrite("federer_warp.jpg",im)
-#
-# cv2.imshow("warp",im)
-# cv2.waitKey()
-# cv2.destroyAllWindows()
-#
-# # # align(img)
-# # # repo="../AR_matlab/"
-# # # initializeParameters(repo)
-# # # bp,coord=processImage(img2)
-# # # tr=delaunayTriangulation(bp)
-# # # img_tri=draw_triangulation(img2, tr, bp)
-# # # cv2.imwrite("meshref.jpg",img_tri)
-# # align(img)
-# #
-# #
-# allpoints, co=processImage(img)
-# bp, coord=processImage(img2)
-# tr=delaunayTriangulation(bp)
-# im_tri=draw_triangulation(img,tr,allpoints)
-# #
-# # # # img_out=warpImage(img2,tr,bp,coord)
-# # # # im_w=preprocess(img,img2)
-# # # #im_w = cv2.resize(im_w, None, fx=2.0, fy=2.0, interpolation=cv2.INTER_CUBIC)
-# #cv2.imwrite("federer_tri.jpg",im_tri)
-# cv2.imshow("wraptri",im_tri)
-# cv2.waitKey()
-# cv2.destroyAllWindows()
-# #cv2.imwrite("bush_mesh_align.jpg",im_w)
+# im="../LFW_verybig/David_Beckham/David_Beckham_0009.jpg"
+# im="../LFW_verybig/Gordon_Brown/Gordon_Brown_0009.jpg"
+# im="../LFW_verybig/Recep_Tayyip_Erdogan/Recep_Tayyip_Erdogan_0002.jpg"
+# im="../LFW_verybig/Angelina_Jolie/Angelina_Jolie_0009.jpg"
+# im="../LFW_verybig/Hillary_Clinton/Hillary_Clinton_0004.jpg"
+# im="../LFW_verybig/Queen_Elizabeth_II/Queen_Elizabeth_II_0013.jpg"
+# im="../LFW_verybig/George_W_Bush/George_W_Bush_0036.jpg"
+# im="testgulechec.jpg"
+# im='../tete.jpg'
+# im="../LFW_verybig/Bill_Clinton/Bill_Clinton_0002.jpg"
+
 
