@@ -311,22 +311,26 @@ def draw_triangulation(im, tri, bp):
 
 
 ### print/save warp image
-# im = "../federer.jpg"
+# im = "../GWBush36.jpg"
 # imref = "../tete6.jpg"
 # img = cv2.imread(im)
 # img_ref = cv2.imread(imref)
 # img_warp = meshAlign(img, img_ref)
 # cv2.imshow("warp", img_warp)
+# cv2.imwrite("bush_warp.jpg", img_warp)
 # cv2.waitKey()
 # cv2.destroyAllWindows()
 
+# preprocess(img, img_ref)
+
 ### print/save triangulation
-# save image as before
+## save image as before
 # allpoints, co = processImage(img)
 # bp, coord=processImage(img_ref)
 # tr = delaunayTriangulation(bp)
 # img_tri = draw_triangulation(img, tr, allpoints)
 # cv2.imshow("tri", img_tri)
+# cv2.imwrite("tete6_tri.jpg", img_tri)
 # cv2.waitKey()
 # cv2.destroyAllWindows()
 
