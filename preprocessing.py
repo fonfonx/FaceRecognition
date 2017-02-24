@@ -5,6 +5,7 @@ import random
 from math import *
 from pca import KEigen
 
+
 # binary comparison
 def isBigger(a, b):
     if a >= b:
@@ -12,10 +13,10 @@ def isBigger(a, b):
     else:
         return 0
 
-
 ####################################################################################
 ######################### Local Binary Patterns ####################################
 ####################################################################################
+
 
 def listToInt(tab):
     rep = 0
@@ -56,12 +57,12 @@ def newpixel_lbp_mult(matrix, i, j, offset):
     return listToInts(tab, offset)
 
 
-def newpixel_lbp_extend(matrix,sl,i,j,offset):
-    ref=matrix[i,j]
-    tab=[]
-    for (u,v) in sl:
-        tab.append(isBigger(matrix[u,v],ref))
-    return listToInts(tab,offset)
+def newpixel_lbp_extend(matrix, sl, i, j, offset):
+    ref = matrix[i, j]
+    tab = []
+    for (u, v) in sl:
+        tab.append(isBigger(matrix[u, v], ref))
+    return listToInts(tab, offset)
 
 
 def newpixel_lbp_patch(matrix, sl, i, j, offset, patch_size):
@@ -261,4 +262,3 @@ def preprocessing(matrix):
     # return patch_matrix(matrix,5*n*m)
     # return LBP_extend(matrix)
     # return LBP_patch(matrix,3,3)
-

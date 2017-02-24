@@ -19,10 +19,8 @@ from creation import *
 from matrix import *
 from preprocessing import *
 
-
-
-
 ############### DEBUG ############
+
 
 def debug_diff_tab(diff_tab):
     print "debug diff_tab \n"
@@ -87,7 +85,7 @@ def toDiag(before_exp):
             rep[i] = 1.0 / (1.0 + exp(before_exp[i]))
         else:
             rep[i] = 0.0
-        rep[i]=sqrt(rep[i])
+        rep[i] = sqrt(rep[i])
     return rep
 
 
@@ -97,7 +95,7 @@ def l2_ls(D, y, lmbda):
     toinv = pr + lmbda * np.identity(n)
     inv = LA.inv(toinv)
     reste = D.transpose().dot(y)
-    rep=inv.dot(reste)
+    rep = inv.dot(reste)
     return rep
 
 
@@ -117,15 +115,15 @@ def RSC_identif(TrainSet, Test):
         # WTest = normalizeColumn(W.dot(Test))
 
         # choice 2: direct computation
-        WTrain=normalizeMatrix(TrainSet*todiag[:,np.newaxis])
-        WTest=normalizeColumn(todiag*Test)
+        WTrain = normalizeMatrix(TrainSet * todiag[:, np.newaxis])
+        WTest = normalizeColumn(todiag * Test)
 
         WTrainRed = dimReduct(WTrain, reductor)
         WTestRed = dimReduct(WTest, reductor)
         D = normalizeMatrix(WTrainRed)
         y = normalizeColumn(WTestRed)
 
-        #[x, status, hist] = L.l1ls(D, y, lmbda, quiet=True)
+        # [x, status, hist] = L.l1ls(D, y, lmbda, quiet=True)
         x = l2_ls(D, y, lmbda)
 
         if j == 0:
@@ -146,30 +144,31 @@ def test_class(man, nbr, nbMen):
     if man:
         for j in range(nbFaces):
             k = 14 + j
-            #k=8+j
+            # k = 8 + j
             nomImage = "M-" + fillStringNumber(nbr, 3) + "-" + fillStringNumber(k, 2) + ".bmp"
             # nomImage = "m-" + fillStringNumber(nbr, 3) + "-" + str(k) + ".bmp"
             pathImage = database + nomImage
             y = columnFromImage(pathImage)
             classif = RSC_identif(dico, y)
-            print "Class " + str(nbr) + " identified as " + str(classif)  # +" "+str(classif2)
+            print "Class " + str(nbr) + " identified as " + str(classif)  # + " " + str(classif2)
             if classif == nbr:
                 good += 1
             tot += 1
     else:
         for j in range(nbFaces):
             k = 14 + j
-            #k=8+j
+            # k = 8 + j
             nomImage = "W-" + fillStringNumber(nbr, 3) + "-" + fillStringNumber(k, 2) + ".bmp"
             # nomImage = "w-" + fillStringNumber(nbr, 3) + "-" + str(k) + ".bmp"
             pathImage = database + nomImage
             y = columnFromImage(pathImage)
             classif = RSC_identif(dico, y)
-            print "Class " + str(nbr + nbMen) + " identified as " + str(classif)  # +" "+str(classif2)
+            print "Class " + str(nbr + nbMen) + " identified as " + str(classif)  # + " " + str(classif2)
             if classif == nbMen + nbr:
                 good += 1
             tot += 1
     return tot, good
+
 
 # test on ARDB
 def test_recognizer():
@@ -177,18 +176,18 @@ def test_recognizer():
     nbWomen = 50
     tot = 0
     good = 0
-    for i in range(1, nbMen + 1,1):
+    for i in range(1, nbMen + 1, 1):
         tot_int, good_int = test_class(True, i, nbMen)
         tot += tot_int
         good += good_int
-    errors_men=tot-good
-    print "errors men",errors_men
-    for i in range(1, nbWomen + 1,1):
+    errors_men = tot-good
+    print "errors men", errors_men
+    for i in range(1, nbWomen + 1, 1):
         tot_int, good_int = test_class(False, i, nbMen)
         tot += tot_int
         good += good_int
-    errors_women=tot-good-errors_men
-    print "errors women",errors_women
+    errors_women = tot-good-errors_men
+    print "errors women", errors_women
     rate = good * 1.0 / (tot * 1.0)
     print "Recognition rate:", rate
 
@@ -211,7 +210,7 @@ def testRecognizer(testSet):
 
 def main(version):
     global classNum, nbFaces, dico, reductor, mean, dico_norm, nbFacesTest
-    if version=='AR':
+    if version == 'AR':
         classNum = 100
         nbFaces = 7
         dico = createTrainingDico(nbFaces, database)
@@ -220,42 +219,42 @@ def main(version):
         mean = mean_sample(dico)
         dico_norm = normalizeMatrix(dico)
         test_recognizer()
-    if version=='other':
+    if version == 'other':
         db = database
         percent = 1.0
         dico, testSet, classNum, nbFaces, nbFacesTest = createDicosFromDirectory(db, 0.5, percent)
 
-        #dico,labels,nameLabels, classNum=createDicoFromDirectory("../AR_DB_train/")
-        #testSet, labelstest, nameLabelstest, c = createDicoFromDirectory("../AR_DB_test/")
-        nbFaces=7
-        nbFacesTest=7
+        # dico,labels,nameLabels, classNum=createDicoFromDirectory("../AR_DB_train/")
+        # testSet, labelstest, nameLabelstest, c = createDicoFromDirectory("../AR_DB_test/")
+        nbFaces = 7
+        nbFacesTest = 7
         reductor = PCA_reductor(dico, nbDim)
         mean = mean_sample(dico)
         dico_norm = normalizeMatrix(dico)
         testRecognizer(testSet)
-    if version=='real':
-        dirTrain = "../g8_images/"#_train/"
+    if version == 'real':
+        dirTrain = "../g8_images/"  # _train/"
         dirTest = "../g8_images_test_big_names/"
         dico, imlab, nlab, classNum = createDicoFromDirectory(dirTrain)
-        #reductor = PCA_reductor(dico, nbDim)
-        reductor=1
+        # reductor = PCA_reductor(dico, nbDim)
+        reductor = 1
         mean = mean_sample(dico)
         dico_norm = normalizeMatrix(dico)
         testSet, imlabtest, nlabtest, cn = createDicoFromDirectory(dirTest)
-        #classNum = 13
+        # classNum = 13
         nbFaces = 7
         nbFacesTest = 1
         testRecognizer(testSet)
-    if version=='lfw':
-        #repo="../LFW_big_train_resized/"
-        #repo="../LFW_verybig/"
-        repo="../lfw2/"
+    if version == 'lfw':
+        # repo="../LFW_big_train_resized/"
+        # repo="../LFW_verybig/"
+        repo = "../lfw2/"
         nbFaces = 1
         nbFacesTest = 1
-        dico,testSet, classNum, nameLabels=createDicosFromDirectory_fixed(repo,nbFaces,nbFacesTest)
+        dico, testSet, classNum, nameLabels = createDicosFromDirectory_fixed(repo, nbFaces, nbFacesTest)
         reductor = PCA_reductor(dico, nbDim)
         mean = mean_sample(dico)
-        dico_norm = normalizeMatrix(dico)   
+        dico_norm = normalizeMatrix(dico)
         testRecognizer(testSet)
 
 ### problemes: mettre les bonnes dimensions sur imref, enlever les valueError dans creation, detecter les test images avec ViolaJones
@@ -268,7 +267,7 @@ database = "../AR_matlab/"
 database = "../AR_DB/"
 ATT_DB = "../../databases/ATT/"
 Yale_DB = "../../databases/CroppedYale/"
-database=ATT_DB
+database = ATT_DB
 
 nbDim = 120
 nbIter = 2
@@ -279,5 +278,5 @@ rel_tol = 0.001
 eta = 1.0
 silence = True
 
-version='lfw'
+version = 'lfw'
 main(version)

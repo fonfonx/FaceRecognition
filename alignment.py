@@ -37,11 +37,12 @@ def landmarks(img, detectface):
         rect = dlib.rectangle(0, 0, h, w)
     return np.array([(p.x, p.y) for p in predictor(img, rect).parts()])
 
+
 def detectFace(img):
     rects = cascade.detectMultiScale(img, 1.3, 5)
     rects = rects[np.argsort(rects[:, 3])[::-1]]
-    x,y,w,h=rects[0]
-    return img[y:y+h,x:x+w]
+    x, y, w, h = rects[0]
+    return img[y:y + h, x:x + w]
 
 
 ########################################################################################################################
@@ -57,10 +58,10 @@ def usefulPoints(img, detectface):
     chin = lm[8]
     mideye = lm[27]
     # mouth
-    mouth_array=np.zeros(2)
-    for i in range(48,68):
-        mouth_array+=np.array(lm[i])
-    mouth=tuple(mouth_array/20.0)
+    mouth_array = np.zeros(2)
+    for i in range(48, 68):
+        mouth_array += np.array(lm[i])
+    mouth = tuple(mouth_array/20.0)
     return nose, chin, left_eye, right_eye, mideye, mouth
 
 
@@ -81,7 +82,7 @@ def translation(img, vec):
 
 # manual align function
 def align(img):
-    nose, chin, le, re, me, mouth = usefulPoints(img, False) #should be false except for myface
+    nose, chin, le, re, me, mouth = usefulPoints(img, False)  # should be false except for myface
 
     # 1st step
     # rotation around left eye
@@ -91,13 +92,13 @@ def align(img):
     # resizing
     eye_space = dist(le, re)
     face_height = dist(chin, me)
-    #eye_mouth=dist(me,mouth)
+    # eye_mouth=dist(me,mouth)
     x_factor = EYES_SPACE / eye_space
-    #y_factor = EYE_MOUTH / eye_mouth
+    # y_factor = EYE_MOUTH / eye_mouth
     y_factor = FACE_HEIGHT / face_height
     factor = (x_factor + y_factor) / 2.0
     img_res = cv2.resize(img_rot, None, fx=x_factor, fy=y_factor, interpolation=cv2.INTER_CUBIC)
-    cv2.imwrite("me_rot.jpg",img_res)
+    cv2.imwrite("me_rot.jpg", img_res)
     # 2nd step
     img = img_res
 
@@ -117,7 +118,7 @@ def align(img):
     # crop
     crop_img = img_t[0:HEIGHT, 0:WIDTH]
     img = crop_img
-    cv2.imwrite("me_crop.jpg",crop_img)
+    cv2.imwrite("me_crop.jpg", crop_img)
     # 3rd step: verification
     # img= cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     # nose, chin, le, re, me = usefulPoints(img, False)
@@ -137,7 +138,7 @@ def align(img):
 # --> return all the points that will be used for the triangulation and the coordinates of the rectangle around the face
 def processImage(img):
     # landmark extraction
-    lm = landmarks(img, True) # change if not LFW (True for LFW)
+    lm = landmarks(img, True)  # change if not LFW (True for LFW)
     # rectangle around face
     ymax = lm[8][1]
     xmin = lm[0][0]
@@ -172,12 +173,14 @@ def delaunayTriangulation(points):
     # plt.show()
     return tri.simplices
 
-def boundingRect(triangle,xmax,ymax):
-    x=floor(np.amin(triangle[:,0]))
-    y=floor(np.amin(triangle[:,1]))
-    xx=min(xmax,ceil(np.amax(triangle[:,0])))
-    yy=min(ymax,ceil(np.amax(triangle[:,1])))
-    return (int(x),int(y),int(xx-x),int(yy-y))
+
+def boundingRect(triangle, xmax, ymax):
+    x = floor(np.amin(triangle[:, 0]))
+    y = floor(np.amin(triangle[:, 1]))
+    xx = min(xmax, ceil(np.amax(triangle[:, 0])))
+    yy = min(ymax, ceil(np.amax(triangle[:, 1])))
+    return (int(x), int(y), int(xx - x), int(yy - y))
+
 
 # base_points: coordinates of the landmark points of reference image
 # triangulation: Delaunay triangulation of the base points
@@ -191,8 +194,8 @@ def warpImage(img, triangulation, base_points, coord):
         # bounding boxes
         src_rect = cv2.boundingRect(np.array([src_tri]))
         dest_rect = cv2.boundingRect(np.array([dest_tri]))
-        #src_rect=boundingRect(src_tri)
-        #dest_rect=boundingRect(dest_tri)
+        # src_rect=boundingRect(src_tri)
+        # dest_rect=boundingRect(dest_tri)
 
         # crop images
         src_crop_tri = np.zeros((3, 2), dtype=np.float32)
@@ -234,10 +237,10 @@ def meshAlign(img, imgref):
     # print img_out.shape
     return img_out
 
-
 ########################################################################################################################
 ########################################### TOTAL ALIGN FUNCTION #######################################################
 ########################################################################################################################
+
 
 def preprocess(img, imgref):
     im = meshAlign(img, imgref)
@@ -245,8 +248,6 @@ def preprocess(img, imgref):
     # im = cv2.resize(im, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_CUBIC)
     im = align(im)
     return im
-
-
 
 ########################################################################################################################
 ################################### FUNCTIONS NOT USED ANY MORE ########################################################
@@ -286,17 +287,18 @@ def initializeParameters(repo):
     FACE_HEIGHT2 = dist(tuple(mArray), tuple(mouthArray))
     print LEFT_EYE_POS, EYES_SPACE, FACE_HEIGHT, FACE_HEIGHT2
 
+
 def draw_triangulation(im, tri, bp):
     img = im.copy()
     for t in tri:
-        n1=t[0]
-        n2=t[1]
-        n3=t[2]
-        pt1=(int(bp[n1][0]),int(bp[n1][1]))
+        n1 = t[0]
+        n2 = t[1]
+        n3 = t[2]
+        pt1 = (int(bp[n1][0]), int(bp[n1][1]))
         pt2 = (int(bp[n2][0]), int(bp[n2][1]))
         pt3 = (int(bp[n3][0]), int(bp[n3][1]))
-        cv2.line(img,pt1,pt2,(0,0,255))
-        cv2.line(img,pt3,pt2,(0,0,255))
+        cv2.line(img, pt1, pt2, (0, 0, 255))
+        cv2.line(img, pt3, pt2, (0, 0, 255))
         cv2.line(img, pt1, pt3, (0, 0, 255))
     return img
 
@@ -346,5 +348,3 @@ def draw_triangulation(im, tri, bp):
 # im="testgulechec.jpg"
 # im='../tete.jpg'
 # im="../LFW_verybig/Bill_Clinton/Bill_Clinton_0002.jpg"
-
-
