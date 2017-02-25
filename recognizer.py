@@ -19,7 +19,6 @@ import time
 from pca import PCA_reductor, KEigen
 from creation import *
 from matrix import *
-from preprocessing import *
 
 
 def fdelta(residual):
