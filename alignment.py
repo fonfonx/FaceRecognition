@@ -1,5 +1,7 @@
-# functions performing face alignment (ie preprocessing tasks)
-# face alignment is done in two parts: mesh align with triangulation and manual alignment
+"""
+Functions performing face alignment (ie preprocessing tasks)
+Face alignment is done in two parts: mesh align with triangulation and manual alignment
+"""
 
 from math import *
 from os import listdir
@@ -67,9 +69,9 @@ def translation(img, vec):
     return cv2.warpAffine(img, M, (img.shape[1], img.shape[0]))
 
 
-def align(img):
+def align(img, display=False, save=False):
     """ Manually align the image """
-    nose, chin, left_eye, right_eye, mideye, mouth = useful_points_on_face(img, False)  # should be false except for myface
+    nose, chin, left_eye, right_eye, mideye, mouth = useful_points_on_face(img, False)  # False except for myface
 
     # 1st step
     # rotation around left eye
@@ -85,16 +87,16 @@ def align(img):
     y_factor = FACE_HEIGHT / face_height
     factor = (x_factor + y_factor) / 2.0
     img_res = cv2.resize(img_rot, None, fx=x_factor, fy=y_factor, interpolation=cv2.INTER_CUBIC)
-    cv2.imwrite("me_rot.jpg", img_res)
+
+    if display:
+        cv2.imshow("First alignment", img_res)
+        cv2.waitKey()
+        cv2.destroyAllWindows()
+    if save:
+        cv2.imwrite("first_alignment.jpg", img_res)
+
     # 2nd step
     img = img_res
-
-    ### in order to print/save intermediate result
-    # cv2.imshow("inter",img_res)
-    # cv2.waitKey()
-    # cv2.destroyAllWindows()
-    # cv2.imwrite("me_rot.jpg",img_res)
-
     # translation
     left_eye = (left_eye[0] * x_factor, left_eye[1] * y_factor)
     transl_vec = tuple(np.array(LEFT_EYE_POS) - np.array(left_eye))
@@ -102,11 +104,14 @@ def align(img):
     # crop
     crop_img = img_t[0:HEIGHT, 0:WIDTH]
     img = crop_img
-    cv2.imwrite("me_crop.jpg", crop_img)
 
-    # cv2.imshow("res",img)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
+    if display:
+        cv2.imshow("Manual Alignment", img)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+    if save:
+        cv2.imwrite("manual_alignment.jpg", img)
+
     return img
 
 
@@ -114,11 +119,14 @@ def align(img):
 # IMAGE WARPING FUNCTIONS #
 ###########################
 
-# preprocessing of the image
-# --> return all the points that will be used for the triangulation and the coordinates of the rectangle around the face
-def processImage(img):
+def preprocess_image_before_triangulation(img):
+    """
+    Perform preprocessing of the image
+    Return all the points that will be used for the triangulation and the coordinates of the rectangle around the face
+    """
     # landmark extraction
     lm = get_landmarks(img, True)  # change if not LFW (True for LFW)
+
     # rectangle around face
     ymax = lm[8][1]
     xmin = lm[0][0]
@@ -132,40 +140,35 @@ def processImage(img):
     ymin_rect = int(ymin - epsilon * yr)
     ymax_rect = int(ymax + epsilon * yr)
     coord = (xmin_rect, xmax_rect, ymin_rect, ymax_rect)
+
     # new landmarks (on the rectangle sides)
     top_points = np.array([[x, ymin_rect] for x in np.linspace(xmin_rect, xmax_rect, 15)])
     bottom_points = np.array([[x, ymax_rect] for x in np.linspace(xmin_rect, xmax_rect, 20)])
     side_points = np.linspace(int(ymin_rect + yr * 1.1 / 12.0), int(ymax_rect - yr * 1.1 / 12.0), 11)
     left_points = np.array([[xmin_rect, y] for y in side_points])
     right_points = np.array([[xmax_rect, y] for y in side_points])
+
     # all points for the triangulation
     lm_points = np.array([[x, y] for (x, y) in lm])
     all_points = np.concatenate((lm_points, top_points, right_points, bottom_points, left_points))
-    # print all_points
+
     return all_points, coord
 
 
-# Delaunay triangulation of the points
-def delaunayTriangulation(points):
+def delaunay_triangulation(points, plot=False):
+    """ Extract a Delaunay's triangulation from the points """
     tri = Delaunay(points)
-    # plt.triplot(points[:, 0], points[:, 1], tri.simplices.copy())
-    # plt.plot(points[:, 0], points[:, 1], 'o')
-    # plt.show()
+    if plot:
+        plt.triplot(points[:, 0], points[:, 1], tri.simplices.copy())
+        plt.plot(points[:, 0], points[:, 1], 'o')
+        plt.show()
     return tri.simplices
-
-
-def boundingRect(triangle, xmax, ymax):
-    x = floor(np.amin(triangle[:, 0]))
-    y = floor(np.amin(triangle[:, 1]))
-    xx = min(xmax, ceil(np.amax(triangle[:, 0])))
-    yy = min(ymax, ceil(np.amax(triangle[:, 1])))
-    return (int(x), int(y), int(xx - x), int(yy - y))
 
 
 # base_points: coordinates of the landmark points of reference image
 # triangulation: Delaunay triangulation of the base points
 def warpImage(img, triangulation, base_points, coord):
-    all_points, co = processImage(img)
+    all_points, co = preprocess_image_before_triangulation(img)
     img_out = 255 * np.ones(img.shape, dtype=img.dtype)
     for t in triangulation:
         # triangles to map one another
@@ -211,8 +214,8 @@ def warpImage(img, triangulation, base_points, coord):
 
 # meshAlign function --> maps all the triangles of img to the triangles of imgref
 def meshAlign(img, imgref):
-    bp, coord = processImage(imgref)
-    tr = delaunayTriangulation(bp)
+    bp, coord = preprocess_image_before_triangulation(imgref)
+    tr = delaunay_triangulation(bp)
     img_out = warpImage(img, tr, bp, coord)
     # print img_out.shape
     return img_out
@@ -272,9 +275,9 @@ def draw_triangulation(im, tri, bp):
 
 ### print/save triangulation
 ## save image as before
-# allpoints, co = processImage(img)
-# bp, coord=processImage(img_ref)
-# tr = delaunayTriangulation(bp)
+# allpoints, co = preprocess_image_before_triangulation(img)
+# bp, coord=preprocess_image_before_triangulation(img_ref)
+# tr = delaunay_triangulation(bp)
 # img_tri = draw_triangulation(img, tr, allpoints)
 # cv2.imshow("tri", img_tri)
 # cv2.imwrite("tete6_tri.jpg", img_tri)
