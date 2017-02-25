@@ -1,6 +1,6 @@
-# FaceRecognition
+# FaceRecognition in real-world images
 
-This is the source code of my article
+This is the source code of my [article](https://infoscience.epfl.ch/record/224338/files/1926.pdf).
 
 Fontaine, X., Achanta, R., & Süsstrunk, S. (2017). Face Recognition in Real-world Images. In *IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP)* (No. EPFL-CONF-224338).
 
