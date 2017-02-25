@@ -15,3 +15,19 @@ WIDTH = 30
 
 # reference face image
 IMREF_PATH = "../tete6.jpg"
+
+# database paths
+DATABASE_PATH = "../lfw2/"
+
+# Parameters
+TRAINING_FACES = 1
+TEST_FACES = 1
+NB_DIM = 120
+
+# RSC algorithm params
+NB_ITER = 2
+PARAM_C = 8.0
+PARAM_TAU = 0.8
+LAMBDA = 0.001
+
+REG_METHOD = 'l2'  # default (other possible value: l1)
