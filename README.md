@@ -40,6 +40,10 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
 
 + Change the path to `haarcascade_frontalface_default.xml` and to the `shape_predictor_68_face_landmarks.dat` file in the `config.py` file.
 
+## Run the Face Recognizer
+
+Run `python recognizer.py` to run the code of the paper. You can change the parameters (number of training images, etc) in the file `config.py`. It should be the only file you have to modify.
+
 ## References
 
 [<a name="#rsc">1</a>] Yang, M., Zhang, L., Yang, J., & Zhang, D. (2011, June). Robust sparse coding for face recognition. In *Computer Vision and Pattern Recognition (CVPR), 2011 IEEE Conference on* (pp. 625-632). IEEE.
