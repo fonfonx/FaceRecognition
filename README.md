@@ -40,6 +40,17 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
 
 + Change the path to `haarcascade_frontalface_default.xml` and to the `shape_predictor_68_face_landmarks.dat` file in the `config.py` file.
 
+## Dataset
+
+I used the LFWa version of the LFW dataset in order to be able to compare my results with other algorithms. It can be downloaded with
+```
+wget http://www.openu.ac.il/home/hassner/data/lfwa/lfwa.tar.gz
+tar xvfz lfwa.tar.gz
+cp -R lfw2 <directory-to-store-dataset>/.
+```
+
+Change the path to the `lfw2` folder in the `config.py` file.
+
 ## Run the Face Recognizer
 
 Run `python recognizer.py` to run the code of the paper. You can change the parameters (number of training images, etc) in the file `config.py`. It should be the only file you have to modify.
