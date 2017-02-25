@@ -1,4 +1,4 @@
-# config file containing some global variables and paths
+""" config file containing some global variables and paths """
 
 # paths for landmarks and cascades
 PREDICTOR_PATH = "/home/xavier/HeavyPrograms/dlib/shape_predictor_68_face_landmarks.dat"
@@ -12,3 +12,6 @@ FACE_HEIGHT = 32  # from eyes to chin
 EYE_MOUTH = 16
 HEIGHT = 30
 WIDTH = 30
+
+# reference face image
+IMREF_PATH = "../tete6.jpg"
