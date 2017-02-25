@@ -72,8 +72,11 @@ def create_dictionaries_from_db(repo, train_size, test_size):
             else:
                 label += 1
                 name_labels[label] = d
+
     train_set = (np.column_stack(train_images)).astype(float)
     test_set = (np.column_stack(test_images)).astype(float)
+
     print "Training and Test sets have been created with success!"
     print "There are " + str(label) + " classes"
+
     return train_set, test_set, label, name_labels
