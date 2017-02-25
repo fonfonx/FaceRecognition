@@ -11,7 +11,7 @@ import dlib
 import numpy as np
 import random
 
-from alignment import align, dist, meshAlign, preprocess, landmarks, detectFace
+from alignment import preprocess, detect_face
 from config import *
 
 
@@ -23,7 +23,7 @@ def column_from_image(img):
     im = cv2.imread(img)
     im = preprocess(im, imref)
 
-    # im = detectFace(im)
+    # im = detect_face(im)
     # cv2.imshow("al",im)
     # cv2.waitKey()
     # cv2.destroyAllWindows()
@@ -31,9 +31,7 @@ def column_from_image(img):
     # im = cv2.resize(im, None, fx=0.2, fy=0.2, interpolation=cv2.INTER_CUBIC)
     # im = cv2.resize(im,(30,30),interpolation=cv2.INTER_CUBIC)
 
-    # im = im.astype(float)
     rep = np.transpose(im).flatten()
-    # print rep.shape
     return rep
 
 

@@ -1,57 +1,42 @@
 # functions performing face alignment (ie preprocessing tasks)
 # face alignment is done in two parts: mesh align with triangulation and manual alignment
 
-import cv2
-import dlib
-import numpy as np
 from math import *
 from os import listdir
 from scipy.spatial import Delaunay
+import cv2
+import dlib
 import matplotlib.pyplot as plt
+import numpy as np
+
 from config import *
+from landmark import get_landmarks
 
 predictor = dlib.shape_predictor(PREDICTOR_PATH)
 cascade = cv2.CascadeClassifier(CASCADE_PATH)
 
 
 def dist(tupleA, tupleB):
+    """ Distance between two points in R^2 """
     return sqrt((tupleB[0] - tupleA[0]) ** 2 + (tupleB[1] - tupleA[1]) ** 2)
 
 
-# return the landmarks of a face (array of tuples)
-# detectface: boolean value indicating if we have to perform face detection on the picture or not
-def landmarks(img, detectface):
-    if detectface:
-        rects = cascade.detectMultiScale(img, 1.3, 5)
-        rects = rects[np.argsort(rects[:, 3])[::-1]]
-        x, y, w, h = rects[0].astype(long)
-        x = x.item()
-        y = y.item()
-        w = w.item()
-        h = h.item()
-        rect = dlib.rectangle(x, y, x + w, y + h)
-        # print x,y,w,h
-    else:
-        h, w = img.shape[:2]
-        # print h,w
-        rect = dlib.rectangle(0, 0, h, w)
-    return np.array([(p.x, p.y) for p in predictor(img, rect).parts()])
-
-
-def detectFace(img):
+def detect_face(img):
+    """ Function detecting the biggest face in an image """
     rects = cascade.detectMultiScale(img, 1.3, 5)
     rects = rects[np.argsort(rects[:, 3])[::-1]]
     x, y, w, h = rects[0]
     return img[y:y + h, x:x + w]
 
 
-########################################################################################################################
-######################################### MANUAL ALIGNMENT #############################################################
-########################################################################################################################
+##############################
+# Manual Alignment Functions #
+##############################
 
-# returns the position of the nose, eyes and chin
-def usefulPoints(img, detectface):
-    lm = landmarks(img, detectface)
+def useful_points_on_face(img, detect_face):
+    """ Return the position of the nose, eyes and chin """
+    lm = get_landmarks(img, detect_face)
+
     nose = lm[30]
     left_eye = tuple((np.array(lm[37]) + np.array(lm[38]) + np.array(lm[40]) + np.array(lm[41])) / 4.0)
     right_eye = tuple((np.array(lm[43]) + np.array(lm[44]) + np.array(lm[46]) + np.array(lm[47])) / 4.0)
@@ -61,37 +46,39 @@ def usefulPoints(img, detectface):
     mouth_array = np.zeros(2)
     for i in range(48, 68):
         mouth_array += np.array(lm[i])
-    mouth = tuple(mouth_array/20.0)
+    mouth = tuple(mouth_array / 20.0)
+
     return nose, chin, left_eye, right_eye, mideye, mouth
 
 
-# rotation of the image
 def rotate(img, angle, center):
+    """ Rotate the image around center of angle """
     rot_mat = cv2.getRotationMatrix2D(center, angle, 1.0)
     result = cv2.warpAffine(img, rot_mat, (int(img.shape[1] * 1.0), int(img.shape[0] * 1.0)), flags=cv2.INTER_LINEAR)
+
     return result
 
 
-# translation of the image
 def translation(img, vec):
+    """ Translate the image according to the corresponding vector """
     tx = vec[0]
     ty = vec[1]
     M = np.float32([[1, 0, tx], [0, 1, ty]])
     return cv2.warpAffine(img, M, (img.shape[1], img.shape[0]))
 
 
-# manual align function
 def align(img):
-    nose, chin, le, re, me, mouth = usefulPoints(img, False)  # should be false except for myface
+    """ Manually align the image """
+    nose, chin, left_eye, right_eye, mideye, mouth = useful_points_on_face(img, False)  # should be false except for myface
 
     # 1st step
     # rotation around left eye
-    eye_vector = np.array(re) - np.array(le)
+    eye_vector = np.array(right_eye) - np.array(left_eye)
     theta = atan2(eye_vector[1], eye_vector[0])
-    img_rot = rotate(img, theta * 180.0 / pi, le)
+    img_rot = rotate(img, theta * 180.0 / pi, left_eye)
     # resizing
-    eye_space = dist(le, re)
-    face_height = dist(chin, me)
+    eye_space = dist(left_eye, right_eye)
+    face_height = dist(chin, mideye)
     # eye_mouth=dist(me,mouth)
     x_factor = EYES_SPACE / eye_space
     # y_factor = EYE_MOUTH / eye_mouth
@@ -109,20 +96,13 @@ def align(img):
     # cv2.imwrite("me_rot.jpg",img_res)
 
     # translation
-    # nose, chin, le, re, me, mouth = usefulPoints(img,False)
-    # detection does not always work
-    # we compute le manually
-    le = (le[0] * x_factor, le[1] * y_factor)
-    transl_vec = tuple(np.array(LEFT_EYE_POS) - np.array(le))
+    left_eye = (left_eye[0] * x_factor, left_eye[1] * y_factor)
+    transl_vec = tuple(np.array(LEFT_EYE_POS) - np.array(left_eye))
     img_t = translation(img, transl_vec)
     # crop
     crop_img = img_t[0:HEIGHT, 0:WIDTH]
     img = crop_img
     cv2.imwrite("me_crop.jpg", crop_img)
-    # 3rd step: verification
-    # img= cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    # nose, chin, le, re, me = usefulPoints(img, False)
-    # print le,re
 
     # cv2.imshow("res",img)
     # cv2.waitKey(0)
@@ -130,15 +110,15 @@ def align(img):
     return img
 
 
-########################################################################################################################
-####################################### IMAGE WARPING VERSION ##########################################################
-########################################################################################################################
+###########################
+# IMAGE WARPING FUNCTIONS #
+###########################
 
 # preprocessing of the image
 # --> return all the points that will be used for the triangulation and the coordinates of the rectangle around the face
 def processImage(img):
     # landmark extraction
-    lm = landmarks(img, True)  # change if not LFW (True for LFW)
+    lm = get_landmarks(img, True)  # change if not LFW (True for LFW)
     # rectangle around face
     ymax = lm[8][1]
     xmin = lm[0][0]
@@ -252,41 +232,6 @@ def preprocess(img, imgref):
 ########################################################################################################################
 ################################### FUNCTIONS NOT USED ANY MORE ########################################################
 ########################################################################################################################
-
-
-# NOT USED (in the align part)
-# to find the good values for the constants LEFT_EYE_POS, etc
-def initializeParameters(repo):
-    listImages = sorted(listdir(repo))
-    n = len(listImages)
-    nArray = np.zeros(2)
-    cArray = np.zeros(2)
-    lArray = np.zeros(2)
-    rArray = np.zeros(2)
-    mArray = np.zeros(2)
-    mouthArray = np.zeros(2)
-    for im in listImages:
-        print im
-        img = cv2.imread(repo + im)
-        nose, chin, le, re, me, mouth = usefulPoints(img, False)
-        nArray += np.array(nose)
-        cArray += np.array(chin)
-        lArray += np.array(le)
-        rArray += np.array(re)
-        mArray += np.array(me)
-        mouthArray += np.array(mouth)
-    nArray = nArray / (1.0 * n)
-    cArray = cArray / (1.0 * n)
-    lArray = lArray / (1.0 * n)
-    rArray = rArray / (1.0 * n)
-    mArray = mArray / (1.0 * n)
-    mouthArray = mouthArray / (1.0 * n)
-    LEFT_EYE_POS = tuple(lArray)
-    EYES_SPACE = dist(tuple(lArray), tuple(rArray))
-    FACE_HEIGHT = dist(tuple(mArray), tuple(cArray))
-    FACE_HEIGHT2 = dist(tuple(mArray), tuple(mouthArray))
-    print LEFT_EYE_POS, EYES_SPACE, FACE_HEIGHT, FACE_HEIGHT2
-
 
 def draw_triangulation(im, tri, bp):
     img = im.copy()

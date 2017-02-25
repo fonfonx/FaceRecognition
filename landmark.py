@@ -8,27 +8,29 @@ predictor = dlib.shape_predictor(PREDICTOR_PATH)
 cascade = cv2.CascadeClassifier(CASCADE_PATH)
 
 
-def get_landmarks(im):
+def get_landmarks(img, detect_face=True):
     """ Return the landmarks of the image """
-    rects = cascade.detectMultiScale(im, 1.2, 5)
-    print len(rects)
-    print rects
-    if len(rects) == 0:
-        x = 0
-        y = 0
-        w, h = im.shape[:2]
-    else:
-        rects = rects[np.argsort(rects[:, 3])[::-1]]
-        x, y, w, h = rects[0].astype(long)
+    x = 0
+    y = 0
+    w, h = img.shape[:2]
+    if detect_face:
+        rects = cascade.detectMultiScale(img, 1.3, 5)
+        if len(rects) >= 1:
+            rects = rects[np.argsort(rects[:, 3])[::-1]]
+            x, y, w, h = rects[0].astype(long)
+            x = x.item()
+            y = y.item()
+            w = w.item()
+            h = h.item()
     rect = dlib.rectangle(x, y, x + w, y + h)
-    return np.matrix([[p.x, p.y] for p in predictor(im, rect).parts()])
+    return np.array([(p.x, p.y) for p in predictor(img, rect).parts()])
 
 
 def annotate_landmarks(im, landmarks):
     """ Draw red points corresponding to the landmarks on the image """
     im = im.copy()
     for idx, point in enumerate(landmarks):
-        pos = (point[0, 0], point[0, 1])
+        pos = (point[0], point[1])
         cv2.circle(im, pos, 2, color=(255, 0, 0))
         cv2.circle(im, pos, 1, color=(255, 0, 0))
         cv2.circle(im, pos, 0, color=(255, 0, 0))
