@@ -14,7 +14,7 @@ HEIGHT = 30
 WIDTH = 30
 
 # reference face image
-IMREF_PATH = "../tete6.jpg"
+IMREF_PATH = "reference_face.jpg"
 
 # database paths
 DATABASE_PATH = "../lfw2/"

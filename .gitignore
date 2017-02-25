@@ -1,3 +1,4 @@
 *.txt
 *.pyc
 *.jpg
+!reference_face.jpg
