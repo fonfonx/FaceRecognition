@@ -3,7 +3,7 @@
 import cv2
 import numpy as np
 from creation import fillStringNumber
-from matrix import normColumn, normalizeColumn, normalizeMatrix, dimReduct
+from matrix import norm_column, normalize_column, normalize_matrix, dim_reduct
 from recognizer import fdelta, toDiag, l2_ls, debug_alpha, debug_diff_tab, mean_sample
 from pca import PCA_reductor
 import l1ls as L
@@ -73,21 +73,21 @@ def createSIFTDico(nbFaces, database):
 def sift_identif(sift, dico):
     print "sift"
     e = np.array((sift - mean).astype(float))
-    norm_y = normColumn(sift)
-    NTest = normalizeColumn(sift)
+    norm_y = norm_column(sift)
+    NTest = normalize_column(sift)
     for j in range(nbIter):
         delta = fdelta(e)
         mu = param_c / delta
         before_exp = mu * (e ** 2 - delta)
         todiag = toDiag(before_exp)
 
-        WTrain = normalizeMatrix(dico * todiag[:, np.newaxis])
-        WTest = normalizeColumn(todiag * sift)
+        WTrain = normalize_matrix(dico * todiag[:, np.newaxis])
+        WTest = normalize_column(todiag * sift)
 
-        WTrainRed = dimReduct(WTrain, reductor)
-        WTestRed = dimReduct(WTest, reductor)
-        D = normalizeMatrix(WTrainRed)
-        y = normalizeColumn(WTestRed)
+        WTrainRed = dim_reduct(WTrain, reductor)
+        WTestRed = dim_reduct(WTest, reductor)
+        D = normalize_matrix(WTrainRed)
+        y = normalize_column(WTestRed)
 
         [x, status, hist] = L.l1ls(D, y, lmbda, quiet=True)
         # x = l2_ls(D, y, lmbda)
@@ -182,6 +182,6 @@ database = "../AR_matlab/"
 dico, nbLabels = createSIFTDico(7, database)
 reductor = PCA_reductor(dico, nbDim)
 mean = mean_sample(dico)
-dico_norm = normalizeMatrix(dico)
+dico_norm = normalize_matrix(dico)
 
 test_recognizer(dico)
