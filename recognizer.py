@@ -16,7 +16,7 @@ import numpy as np
 import sys
 import time
 
-from pca import PCA_reductor, KEigen
+from pca import pca_reductor
 from creation import *
 from matrix import *
 
@@ -123,7 +123,7 @@ def main():
     nbFaces = 1
     nbFacesTest = 1
     dico, test_set, classNum, name_labels = create_dictionaries_from_db(repo, nbFaces, nbFacesTest)
-    reductor = PCA_reductor(dico, nbDim)
+    reductor = pca_reductor(dico, nbDim)
     mean = mean_sample(dico)
     dico_norm = normalize_matrix(dico)
     testRecognizer(test_set)
