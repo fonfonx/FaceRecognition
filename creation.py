@@ -41,7 +41,7 @@ def create_dictionaries_from_db(repo, train_size, test_size):
     for d in directories:
         images = sorted(listdir(repo + d))
         shuffle(images)
-        if len(images) >= 10:  # in the paper we consider only these classes - could be replaced by train_size + test_size
+        if len(images) >= 10:  # in the paper we consider only these images - can be replaced by train_size + test_size
             nb_img = 0
             i = 0
             while nb_img < train_size+test_size and i < len(images):

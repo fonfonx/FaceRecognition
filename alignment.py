@@ -253,6 +253,10 @@ def preprocess(img, imgref):
     return im
 
 
+########################
+# ADDITIONAL FUNCTIONS #
+########################
+
 def draw_triangulation(im, tri, bp):
     """ Draw a triangulation """
     img = im.copy()
@@ -268,49 +272,48 @@ def draw_triangulation(im, tri, bp):
         cv2.line(img, pt1, pt3, (0, 0, 255))
     return img
 
-### print/save my photo cropped
-# im="../photomoi.jpg"
-# img = cv2.imread(im)
-# img_align=align(img)
-# cv2.imshow("align",img_align)
-# cv2.waitKey()
-# cv2.destroyAllWindows()
-# cv2.imwrite("me_crop.jpg",img_align)
+
+def show_warped_image(im_path, save=False, save_path="warpedImage.jpg"):
+    """ Show the result of the mesh warping process """
+    img = cv2.imread(im_path)
+    img_ref = cv2.imread(IMREF_PATH)
+    img_warp = mesh_align(img, img_ref)
+    cv2.imshow("warped image", img_warp)
+    cv2.waitKey()
+    cv2.destroyAllWindows()
+    if save:
+        cv2.imwrite(save_path, img_warp)
 
 
-### print/save warp image
-# im = "../GWBush36.jpg"
-# imref = "../tete6.jpg"
-# img = cv2.imread(im)
-# img_ref = cv2.imread(imref)
-# img_warp = mesh_align(img, img_ref)
-# cv2.imshow("warp", img_warp)
-# cv2.imwrite("bush_warp.jpg", img_warp)
-# cv2.waitKey()
-# cv2.destroyAllWindows()
+def show_aligned_image(im_path, save=False, save_path="alignedImage.jpg"):
+    """ Show the result of the alignment process """
+    img = cv2.imread(im_path)
+    img_ref = cv2.imread(IMREF_PATH)
+    img_aligned = preprocess(img, img_ref)
+    cv2.imshow("aligned image", img_aligned)
+    cv2.waitKey()
+    cv2.destroyAllWindows()
+    if save:
+        cv2.imwrite(save_path, img_aligned)
 
-# preprocess(img, img_ref)
 
-### print/save triangulation
-## save image as before
-# allpoints, co = preprocess_image_before_triangulation(img)
-# bp, coord=preprocess_image_before_triangulation(img_ref)
-# tr = delaunay_triangulation(bp)
-# img_tri = draw_triangulation(img, tr, allpoints)
-# cv2.imshow("tri", img_tri)
-# cv2.imwrite("tete6_tri.jpg", img_tri)
-# cv2.waitKey()
-# cv2.destroyAllWindows()
+def show_triangulation_image(im_path, save=False, save_path="triangulationImage.jpg"):
+    """ Show the result of the alignment process """
+    img = cv2.imread(im_path)
+    img_ref = cv2.imread(IMREF_PATH)
+    allpoints, co = preprocess_image_before_triangulation(img)
+    bp, coord = preprocess_image_before_triangulation(img_ref)
+    tr = delaunay_triangulation(bp)
+    img_tri = draw_triangulation(img, tr, allpoints)
+    cv2.imshow("triangulation image", img_tri)
+    cv2.waitKey()
+    cv2.destroyAllWindows()
+    if save:
+        cv2.imwrite(save_path, img_tri)
 
-### images to test
-# im="../federer.jpg"
-# im="../LFW_verybig/David_Beckham/David_Beckham_0009.jpg"
-# im="../LFW_verybig/Gordon_Brown/Gordon_Brown_0009.jpg"
-# im="../LFW_verybig/Recep_Tayyip_Erdogan/Recep_Tayyip_Erdogan_0002.jpg"
-# im="../LFW_verybig/Angelina_Jolie/Angelina_Jolie_0009.jpg"
-# im="../LFW_verybig/Hillary_Clinton/Hillary_Clinton_0004.jpg"
-# im="../LFW_verybig/Queen_Elizabeth_II/Queen_Elizabeth_II_0013.jpg"
-# im="../LFW_verybig/George_W_Bush/George_W_Bush_0036.jpg"
-# im="testgulechec.jpg"
-# im='../tete.jpg'
-# im="../LFW_verybig/Bill_Clinton/Bill_Clinton_0002.jpg"
+
+if __name__ == '__main__':
+    im = 'federer_image.jpg'
+    show_warped_image(im, True, "federer_warped.jpg")
+    show_aligned_image(im, True, "federer_aligned.jpg")
+    show_triangulation_image(im, True, "federer_triangulation.jpg")

@@ -2,3 +2,4 @@
 *.pyc
 *.jpg
 !reference_face.jpg
+!federer_image.jpg
