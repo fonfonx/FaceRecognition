@@ -62,7 +62,7 @@ def l2_ls(D, y, lmbda):
     return rep
 
 
-def RSC_identif(TrainSet, Test):
+def RSC_identif(train_set, Test):
     e = np.array((Test - mean).astype(float))
     norm_y = norm_column(Test)
     NTest = normalize_column(Test)
@@ -74,11 +74,11 @@ def RSC_identif(TrainSet, Test):
 
         # choice 1: create diagonal matrix
         # W = np.diag(todiag.flatten())
-        # WTrain = normalize_matrix(W.dot(TrainSet))
+        # WTrain = normalize_matrix(W.dot(train_set))
         # WTest = normalize_column(W.dot(Test))
 
         # choice 2: direct computation
-        WTrain = normalize_matrix(TrainSet * todiag[:, np.newaxis])
+        WTrain = normalize_matrix(train_set * todiag[:, np.newaxis])
         WTest = normalize_column(todiag * Test)
 
         WTrainRed = dim_reduct(WTrain, reductor)
@@ -101,12 +101,12 @@ def RSC_identif(TrainSet, Test):
     return classif(D, y, alpha, nbFaces)
 
 
-def testRecognizer(testSet):
+def testRecognizer(test_set):
     tot = 0
     good = 0
-    p, n = testSet.shape
+    p, n = test_set.shape
     for i in range(n):
-        y = testSet[:, i]
+        y = test_set[:, i]
         trueClass = 1 + int(i / nbFacesTest)
         classif = RSC_identif(dico, y)
         print "Class " + str(trueClass) + " identified as " + str(classif)
@@ -122,11 +122,11 @@ def main():
     repo = "../lfw2/"
     nbFaces = 1
     nbFacesTest = 1
-    dico, testSet, classNum, nameLabels = createDicosFromDirectory_fixed(repo, nbFaces, nbFacesTest)
+    dico, test_set, classNum, name_labels = create_dictionaries_from_db(repo, nbFaces, nbFacesTest)
     reductor = PCA_reductor(dico, nbDim)
     mean = mean_sample(dico)
     dico_norm = normalize_matrix(dico)
-    testRecognizer(testSet)
+    testRecognizer(test_set)
 
 nbDim = 120
 nbIter = 2
