@@ -165,10 +165,16 @@ def delaunay_triangulation(points, plot=False):
     return tri.simplices
 
 
-# base_points: coordinates of the landmark points of reference image
-# triangulation: Delaunay triangulation of the base points
-def warpImage(img, triangulation, base_points, coord):
-    all_points, co = preprocess_image_before_triangulation(img)
+def warp_image(img, triangulation, base_points, coord):
+    """
+    Realize the mesh warping phase
+
+    triangulation is the Delaunay triangulation of the base points
+    base_points are the coordinates of the landmark poitns of the reference image
+
+    code inspired from http://www.learnopencv.com/warp-one-triangle-to-another-using-opencv-c-python/
+    """
+    all_points, coordinates = preprocess_image_before_triangulation(img)
     img_out = 255 * np.ones(img.shape, dtype=img.dtype)
     for t in triangulation:
         # triangles to map one another
@@ -177,8 +183,6 @@ def warpImage(img, triangulation, base_points, coord):
         # bounding boxes
         src_rect = cv2.boundingRect(np.array([src_tri]))
         dest_rect = cv2.boundingRect(np.array([dest_tri]))
-        # src_rect=boundingRect(src_tri)
-        # dest_rect=boundingRect(dest_tri)
 
         # crop images
         src_crop_tri = np.zeros((3, 2), dtype=np.float32)
@@ -187,13 +191,24 @@ def warpImage(img, triangulation, base_points, coord):
             for dim in range(0, 2):
                 src_crop_tri[k][dim] = src_tri[k][dim] - src_rect[dim]
                 dest_crop_tri[k][dim] = dest_tri[k][dim] - dest_rect[dim]
-        src_crop_img = img[src_rect[1]:src_rect[1] + src_rect[3], src_rect[0]:src_rect[0] + src_rect[2]]
-        # affine transformation estimation
-        mat = cv2.getAffineTransform(np.float32(src_crop_tri), np.float32(dest_crop_tri))
-        dest_crop_img = cv2.warpAffine(src_crop_img, mat, (dest_rect[2], dest_rect[3]), None, flags=cv2.INTER_LINEAR,
-                                       borderMode=cv2.BORDER_REFLECT_101)
 
-        # use a mask to keep only the triangle pixels
+        src_crop_img = img[src_rect[1]:src_rect[1] + src_rect[3], src_rect[0]:src_rect[0] + src_rect[2]]
+
+        # affine transformation estimation
+        mat = cv2.getAffineTransform(
+            np.float32(src_crop_tri),
+            np.float32(dest_crop_tri)
+        )
+        dest_crop_img = cv2.warpAffine(
+            src_crop_img,
+            mat,
+            (dest_rect[2], dest_rect[3]),
+            None,
+            flags=cv2.INTER_LINEAR,
+            borderMode=cv2.BORDER_REFLECT_101
+        )
+
+        # Use a mask to keep only the triangle pixels
         # Get mask by filling triangle
         mask = np.zeros((dest_rect[3], dest_rect[2], 3), dtype=np.float32)
         cv2.fillConvexPoly(mask, np.int32(dest_crop_tri), (1.0, 1.0, 1.0), 16, 0)
@@ -212,31 +227,34 @@ def warpImage(img, triangulation, base_points, coord):
     return img_out[coord[2]:coord[3], coord[0]:coord[1]]
 
 
-# meshAlign function --> maps all the triangles of img to the triangles of imgref
-def meshAlign(img, imgref):
+def mesh_align(img, imgref):
+    """
+    Maps all the triangles of the img image to the triangles of imgref
+    """
     bp, coord = preprocess_image_before_triangulation(imgref)
     tr = delaunay_triangulation(bp)
-    img_out = warpImage(img, tr, bp, coord)
-    # print img_out.shape
+    img_out = warp_image(img, tr, bp, coord)
     return img_out
 
-########################################################################################################################
-########################################### TOTAL ALIGN FUNCTION #######################################################
-########################################################################################################################
 
+########################
+# TOTAL ALIGN FUNCTION #
+########################
 
 def preprocess(img, imgref):
-    im = meshAlign(img, imgref)
+    """
+    Align the image img with respect to the reference image imgref
+    Does the two steps of mesh warping and manual alignment
+    """
+    im = mesh_align(img, imgref)
     im = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
     # im = cv2.resize(im, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_CUBIC)
     im = align(im)
     return im
 
-########################################################################################################################
-################################### FUNCTIONS NOT USED ANY MORE ########################################################
-########################################################################################################################
 
 def draw_triangulation(im, tri, bp):
+    """ Draw a triangulation """
     img = im.copy()
     for t in tri:
         n1 = t[0]
@@ -265,7 +283,7 @@ def draw_triangulation(im, tri, bp):
 # imref = "../tete6.jpg"
 # img = cv2.imread(im)
 # img_ref = cv2.imread(imref)
-# img_warp = meshAlign(img, img_ref)
+# img_warp = mesh_align(img, img_ref)
 # cv2.imshow("warp", img_warp)
 # cv2.imwrite("bush_warp.jpg", img_warp)
 # cv2.waitKey()
