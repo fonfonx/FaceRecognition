@@ -71,7 +71,7 @@ def translation(img, vec):
 
 def align(img, display=False, save=False):
     """ Manually align the image """
-    nose, chin, left_eye, right_eye, mideye, mouth = useful_points_on_face(img, False)  # False except for myface
+    nose, chin, left_eye, right_eye, mideye, mouth = useful_points_on_face(img, True)  # can try with False too
 
     # 1st step
     # rotation around left eye
@@ -127,6 +127,9 @@ def preprocess_image_before_triangulation(img):
     # landmark extraction
     lm = get_landmarks(img, True)  # change if not LFW (True for LFW)
 
+    # image size
+    x_img, y_img, _ = img.shape
+
     # rectangle around face
     ymax = lm[8][1]
     xmin = lm[0][0]
@@ -151,6 +154,11 @@ def preprocess_image_before_triangulation(img):
     # all points for the triangulation
     lm_points = np.array([[x, y] for (x, y) in lm])
     all_points = np.concatenate((lm_points, top_points, right_points, bottom_points, left_points))
+
+    all_points = np.array([
+        [np.clip(x, 0, x_img - 1), np.clip(y, 0, y_img - 1)]
+        for (x, y) in all_points
+    ])
 
     return all_points, coord
 

@@ -8,11 +8,26 @@ predictor = dlib.shape_predictor(PREDICTOR_PATH)
 cascade = cv2.CascadeClassifier(CASCADE_PATH)
 
 
+def convert_to_long(x, y, w, h):
+    """ Put x, y, w, h to the good format """
+    x = long(x)
+    y = long(y)
+    w = long(w)
+    h = long(h)
+    return x, y, w, h
+
+
 def get_landmarks(img, detect_face=True):
     """ Return the landmarks of the image """
-    x = 0
-    y = 0
     w, h = img.shape[:2]
+
+    # default values
+    x = 0.08 * w
+    y = 0.08 * h
+    w = 0.84 * w
+    h = 0.84 * h
+    x, y, w, h = convert_to_long(x, y, w, h)
+
     if detect_face:
         rects = cascade.detectMultiScale(img, 1.3, 5)
         if len(rects) >= 1:
