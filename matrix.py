@@ -27,10 +27,12 @@ def normalize_matrix(matrix):
     return nmatrix
 
 
-def dim_reduct(matrix, reductor):
+def dim_reduct(matrix, reductor, enable_dim_reduction=False):
     """ Perform dimensionality reduction given a reductor matrix """
-    # return reductor.transpose().dot(matrix) # toggle to enable dimensionality reduction
-    return matrix
+    if enable_dim_reduction:
+        return reductor.transpose().dot(matrix)
+    else:
+        return matrix
 
 
 def mean_sample(mat):

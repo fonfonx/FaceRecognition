@@ -74,8 +74,8 @@ def RSC_identif(train_set, test_image, mean, reductor, dico_norm, nb_classes):
         w_train = normalize_matrix(train_set * todiag[:, np.newaxis])
         w_test = normalize_column(todiag * test_image)
 
-        w_train_red = dim_reduct(w_train, reductor)
-        w_test_red = dim_reduct(w_test, reductor)
+        w_train_red = dim_reduct(w_train, reductor, DIM_REDUCTION)
+        w_test_red = dim_reduct(w_test, reductor, DIM_REDUCTION)
         D = normalize_matrix(w_train_red)
         y = normalize_column(w_test_red)
 

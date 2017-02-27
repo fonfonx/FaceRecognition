@@ -22,6 +22,7 @@ DATABASE_PATH = "../lfw2/"
 # Parameters
 TRAINING_FACES = 1
 TEST_FACES = 1
+DIM_REDUCTION = False
 NB_DIM = 120
 
 # RSC algorithm params
