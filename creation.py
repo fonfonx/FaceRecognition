@@ -1,11 +1,8 @@
 """ main functions to create the dictionaries """
 
-from numpy.fft import fft2
 from os import listdir
 from os.path import isfile, join
-from PIL import Image
 from random import shuffle
-from scipy.fftpack import dct, fft
 import cv2
 import dlib
 import numpy as np
@@ -15,11 +12,12 @@ from alignment import preprocess, detect_face
 from config import *
 
 
-def column_from_image(img):
+def column_from_image(img, verbose=True):
     """ Create a column vector from input image """
 
+    if verbose:
+        print img
     imref = cv2.imread(IMREF_PATH)
-    print img
     im = cv2.imread(img)
     im = preprocess(im, imref)
 
@@ -30,7 +28,7 @@ def column_from_image(img):
     return rep
 
 
-def create_dictionaries_from_db(repo, train_size, test_size):
+def create_dictionaries_from_db(repo, train_size, test_size, verbose=True):
     """ Create training and testing sets from a database with a fixed number of images in both sets """
 
     train_images = []
@@ -38,30 +36,31 @@ def create_dictionaries_from_db(repo, train_size, test_size):
     name_labels = {}
     directories = sorted(listdir(repo))
     label = 0
+    print "Processing images ..."
     for d in directories:
         images = sorted(listdir(repo + d))
         shuffle(images)
         if len(images) >= 10:  # in the paper we consider only these images - can be replaced by train_size + test_size
             nb_img = 0
             i = 0
-            while nb_img < train_size+test_size and i < len(images):
+            while nb_img < train_size + test_size and i < len(images):
                 path_image = repo + d + "/" + images[i]
                 i += 1
                 try:
                     if nb_img < train_size:
-                        train_images.append(column_from_image(path_image))
+                        train_images.append(column_from_image(path_image, verbose))
                     else:
-                        test_images.append(column_from_image(path_image))
+                        test_images.append(column_from_image(path_image, verbose))
                     nb_img += 1
                 except (cv2.error, TypeError, ValueError) as e:
-                    print "error image "+path_image+" "+str(e)
+                    print "error image " + path_image + " " + str(e)
             if nb_img < train_size + test_size:
-                print "removing " + d
+                print "Removing " + d
                 if nb_img <= train_size and nb_img > 0:
                     del train_images[-nb_img:]
                 elif nb_img > 0:
                     del train_images[-train_size:]
-                    del test_images[-(nb_img-train_size):]
+                    del test_images[-(nb_img - train_size):]
             else:
                 label += 1
                 name_labels[label] = d

@@ -37,7 +37,12 @@ def test_recognizer(test_set):
 
 
 if __name__ == '__main__':
-    dico, test_set, nb_classes, name_labels = create_dictionaries_from_db(DATABASE_PATH, TRAINING_FACES, TEST_FACES)
+    dico, test_set, nb_classes, name_labels = create_dictionaries_from_db(
+        DATABASE_PATH,
+        TRAINING_FACES,
+        TEST_FACES,
+        VERBOSE
+    )
     reductor = pca_reductor(dico, NB_DIM)
     mean = mean_sample(dico)
     dico_norm = normalize_matrix(dico)
